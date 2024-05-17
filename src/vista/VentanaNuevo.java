@@ -5,11 +5,8 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -17,8 +14,14 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import controlador.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JComponent;
+import javax.swing.JRootPane;
+import javax.swing.KeyStroke;
 
 /**
  *
@@ -35,14 +38,14 @@ public class VentanaNuevo extends JDialog
     private JTextField peso;
     JTextField ruta;
     JTextField autor;
-    private JButton btnCrear;
     private final char tipo;
-
+    private final TableModelPersonalizada model;
     final String pathImagenes = "src/vista/imagenes/";
 
-    public VentanaNuevo(JFrame frame, String titulo, char tipo)
+    public VentanaNuevo(JFrame frame, String titulo, char tipo, TableModelPersonalizada model)
     {
         super(frame, titulo, true);
+        this.model = model;
         this.tipo = tipo;
         this.setSize(450, 320);
         this.setLocationRelativeTo(frame);
@@ -50,6 +53,7 @@ public class VentanaNuevo extends JDialog
 
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         initComponents();
+        addEscapeListener();
     }
 
     private void initComponents()
@@ -76,7 +80,6 @@ public class VentanaNuevo extends JDialog
         autor = new JTextField("Alfred", 10);
         ruta.setEditable(false);
         autor.setEditable(false);
-        btnCrear = new JButton(" Crear ");
 
         gbConstraints = new GridBagConstraints();
         if (tipo == 'A')
@@ -107,10 +110,13 @@ public class VentanaNuevo extends JDialog
             {
                 if (tipo == 'A')
                 {
-                    enterKeyPressed(e, nombre.getText(), peso);
+                    if (!nombre.getText().isEmpty())
+                    {
+                        Ctrl.enter(e, peso);
+                    }
                 } else
                 {
-                    enterKeyPressed(e, nombre.getText(), btnCrear);
+                    enterKeyPressed(e.getKeyChar());
                 }
 
             }
@@ -121,37 +127,13 @@ public class VentanaNuevo extends JDialog
             @Override
             public void keyPressed(KeyEvent e)
             {
-                enterKeyPressed(e, peso.getText(), btnCrear);
+                enterKeyPressed(e.getKeyChar());
             }
         });
-
-        btnCrear.addKeyListener(new KeyAdapter()
-        {
-            @Override
-            public void keyPressed(KeyEvent e)
-            {
-                if (e.getKeyChar() == '\n')
-                {
-                    crear();
-                }
-            }
-        });
-
-        btnCrear.addActionListener(new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                crear();
-            }
-        });
-
-        panelBoton.add(btnCrear);
 
         panelForm.add(panel);
         principal.add(panelIcono);
         principal.add(panelForm);
-        principal.add(panelBoton);
         this.add(principal);
     }
 
@@ -166,11 +148,11 @@ public class VentanaNuevo extends JDialog
         panel.add(c, gbConstraints);
     }
 
-    private void enterKeyPressed(KeyEvent e, String s, Object obj)
+    private void enterKeyPressed(char e)
     {
-        if (!s.isEmpty())
+        if (e == '\n')
         {
-            Ctrl.enter(e, obj);
+            crear();
         }
     }
 
@@ -188,6 +170,7 @@ public class VentanaNuevo extends JDialog
                     boolean estado = Ctrl.crear(nombreExtencion[0], nombreExtencion[1], autor.getText(), tipo, tamanio, ruta.getText());
                     if (estado)
                     {
+                        model.actualizarTabla(Ctrl.buscarNodo(Var.getLista()));
                         VentanaNuevo.this.dispose();
                     } else
                     {
@@ -201,9 +184,25 @@ public class VentanaNuevo extends JDialog
             {
                 System.out.println("nombre incorrecto");
             }
-        }else
+        } else
         {
             System.out.println("Hay campos vacios");
         }
+    }
+
+    private void addEscapeListener()
+    {
+        KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
+        Action escapeAction = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                dispose();
+            }
+        };
+        JRootPane rootPane = this.getRootPane();
+        rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "ESCAPE");
+        rootPane.getActionMap().put("ESCAPE", escapeAction);
     }
 }

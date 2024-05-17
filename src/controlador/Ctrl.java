@@ -1,10 +1,13 @@
 package controlador;
 
 import clases.Archivo;
+import clases.ListaCircularDoblementeLigada;
 import clases.Nodo;
 import java.awt.event.KeyEvent;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JButton;
@@ -23,15 +26,15 @@ public class Ctrl
         {
             LocalDateTime currentDateTime = LocalDateTime.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            Archivo archivo = new Archivo(nombre , nombre, currentDateTime.format(formatter), autor, tipo, tamaño, ruta);
+            Archivo archivo = new Archivo(nombre, extencion, currentDateTime.format(formatter), autor, tipo, tamaño, ruta);
             Nodo nodo = new <Archivo>Nodo(nombre + extencion, archivo);
             Var.getLista().insertar(nodo);
             return true;
-        }catch(Exception e)
+        } catch (Exception e)
         {
             return false;
         }
-        
+
     }
 
     public static String[] validarNombre(String nombreArch, char tipo)
@@ -57,7 +60,7 @@ public class Ctrl
                     nombreArch, null
                 };
             }
-            
+
             String name = nombreArch.substring(0, index);
             String extension = nombreArch.substring(index);
 
@@ -104,5 +107,25 @@ public class Ctrl
                 }
             }
         }
+    }
+
+    public static List buscarNodo(ListaCircularDoblementeLigada lista)
+    {
+        List<Archivo> listaArray = new ArrayList<>();
+        if (lista.getRaiz() != null)
+        {
+            Nodo aux = lista.getRaiz();
+            do
+            {
+                 aux = aux.getSiguiente();
+                if (aux.getObjecto() instanceof Archivo x)
+                {
+                    listaArray.add(x);
+                }
+               
+            } while (aux != lista.getRaiz());
+            System.out.println("");
+        }
+        return listaArray;
     }
 }

@@ -1,15 +1,19 @@
 package vista;
 
+import controlador.Ctrl;
+import controlador.TablaPersonalizada;
+import controlador.TableModelPersonalizada;
+import controlador.Var;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -19,18 +23,16 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
-import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
+import javax.swing.JViewport;
 import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 
 /**
  *
  * @author Alfred
  */
+
 public class VentanaPrincipal extends JFrame
 {
 
@@ -44,6 +46,7 @@ public class VentanaPrincipal extends JFrame
     private JTextField ruta;
     private JTextField busca;
     private JLabel dirAnterior;
+    private TableModelPersonalizada model;
 
     final String pathImagenes = "src/vista/imagenes/";
 
@@ -68,27 +71,34 @@ public class VentanaPrincipal extends JFrame
         initPanelCenter();
         initPanelSouth();
 
-        panelPrincipal.add(panelNorth, BorderLayout.NORTH);
-        panelPrincipal.add(panelWest, BorderLayout.WEST);
+        //panelPrincipal.add(panelNorth, BorderLayout.NORTH);
+        // panelPrincipal.add(panelWest, BorderLayout.WEST);
         panelPrincipal.add(panelCenter, BorderLayout.CENTER);
         panelPrincipal.add(panelSouth, BorderLayout.SOUTH);
 
         this.add(panelPrincipal);
     }
-
+    
+    /*
+     *Administra funcion de busqueda
+     *tambien crea nuevas carpetas y archivos
+     *de igual modo se encarga de ir un directorio arriba
+     */
     private void initPanelNorth()
     {
         panelNorth = new JPanel();
-        
         nuevaCarpeta = new JLabel(new ImageIcon(pathImagenes + "agregar-carpeta1.png"));
-        nuevaCarpeta.setBorder(new EmptyBorder(0, 0, 0, 20));
+        nuevaCarpeta.setBorder(new EmptyBorder(0, 0, 0, 0));
         nuevoArchivo = new JLabel(new ImageIcon(pathImagenes + "agregar-archivo1.png"));
-        nuevoArchivo.setBorder(new EmptyBorder(0, 0, 0, 20));
-        dirAnterior = new JLabel(new ImageIcon(pathImagenes + "arriba.png"));
-        dirAnterior.setBorder(new EmptyBorder(0, 0, 0, 20));
-        
-        ruta = new JTextField(40);
-        busca = new JTextField(20);
+        nuevoArchivo.setBorder(new EmptyBorder(0, 0, 0, 0));
+        dirAnterior = new JLabel(new ImageIcon(pathImagenes + "arriba2.png"));
+        dirAnterior.setBorder(new EmptyBorder(0, 0, 0, 0));
+
+        ruta = new JTextField(30);
+        busca = new JTextField(10);
+
+        ruta.setText("C:/");
+        ruta.setEditable(false);
         
         nuevaCarpeta.addMouseListener(new MouseAdapter()
         {
@@ -107,10 +117,10 @@ public class VentanaPrincipal extends JFrame
             @Override
             public void mouseClicked(MouseEvent evt)
             {
-                new VentanaNuevo(VentanaPrincipal.this, "Nueva Carpeta", 'C').setVisible(true);
+                new VentanaNuevo(VentanaPrincipal.this, "Nueva Carpeta", 'C', model).setVisible(true);
             }
         });
-        
+
         nuevoArchivo.addMouseListener(new MouseAdapter()
         {
             @Override
@@ -128,17 +138,41 @@ public class VentanaPrincipal extends JFrame
             @Override
             public void mouseClicked(MouseEvent evt)
             {
-                new VentanaNuevo(VentanaPrincipal.this, "Nuevo Archivo", 'A').setVisible(true);
+                new VentanaNuevo(VentanaPrincipal.this, "Nuevo Archivo", 'A', model).setVisible(true);
             }
         });
-        
+
+        dirAnterior.addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mouseExited(MouseEvent evt)
+            {
+                //iconos[1].setIcon(new ImageIcon(pathImagenes + nomIcon[1]));
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent evt)
+            {
+                //iconos[1].setIcon(new ImageIcon(pathImagenes + "guardar_Hover.png"));
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent evt)
+            {
+
+            }
+        });
+
         panelNorth.add(nuevaCarpeta);
         panelNorth.add(nuevoArchivo);
-        panelNorth.add(ruta);
         panelNorth.add(dirAnterior);
+        panelNorth.add(ruta);
         panelNorth.add(busca);
     }
 
+    /*
+     *Administra el arbol de directorios
+     */
     private void initPanelWest()
     {
         panelWest = new JPanel();
@@ -146,143 +180,72 @@ public class VentanaPrincipal extends JFrame
         panelWest.add(new JLabel("fdssdf sdsdffdssdf sdsdfsdf"));
     }
 
+    /*
+     *Administra la parte de la visualizacion de directorio especifico
+     *se encarga de los popMenu
+     */
     private void initPanelCenter()
     {
         panelCenter = new JPanel();
         panelCenter.setBackground(Color.WHITE);
         panelCenter.setLayout(new BorderLayout());
-        
-        String[] columnNames = {"Tipo", "Nombre", "Fecha", "Tamaño"};
-        
-        // Crear el modelo de la tabla
-        Object[][] data = {
-            {"Archivo", "documento1.txt", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "15 KB"},
-    {"Carpeta", "proyectos", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "—"},
-    {"Archivo", "imagen2.png", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "250 KB"},
-    {"Archivo", "presentación3.pptx", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "1.2 MB"},
-    {"Archivo", "documento4.txt", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "20 KB"},
-    {"Carpeta", "fotos", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "—"},
-    {"Archivo", "video5.mp4", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "2.3 MB"},
-    {"Archivo", "presentación6.pptx", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "1.5 MB"},
-    {"Archivo", "documento7.txt", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "18 KB"},
-    {"Carpeta", "proyectos", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "—"},
-    {"Archivo", "imagen8.png", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "280 KB"},
-    {"Archivo", "presentación9.pptx", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "1.1 MB"},
-    {"Archivo", "documento10.txt", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "17 KB"},
-    {"Carpeta", "música", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "—"},
-    {"Archivo", "video11.mp4", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "3.2 MB"},
-    {"Archivo", "presentación12.pptx", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "2.0 MB"},
-    {"Archivo", "documento13.txt", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "16 KB"},
-    {"Carpeta", "proyectos", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "—"},
-    {"Archivo", "imagen14.png", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "320 KB"},
-    {"Archivo", "presentación15.pptx", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "1.8 MB"},
-    {"Archivo", "documento16.txt", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "14 KB"},
-    {"Carpeta", "videos", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "—"},
-    {"Archivo", "video17.mp4", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "4.5 MB"},
-    {"Archivo", "presentación18.pptx", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "1.3 MB"},
-    {"Archivo", "documento19.txt", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "19 KB"},
-    {"Carpeta", "imágenes", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "—"},
-    {"Archivo", "imagen20.png", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "350 KB"},
-    {"Archivo", "presentación21.pptx", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "1.9 MB"},
-    {"Archivo", "documento22.txt", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "12 KB"},
-    {"Carpeta", "documentos", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "—"},
-    {"Archivo", "video23.mp4", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "2.8 MB"},
-    {"Archivo", "presentación24.pptx", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "2.2 MB"},
-    {"Archivo", "documento25.txt", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "21 KB"},
-    {"Carpeta", "archivos", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "—"},
-    {"Archivo", "imagen26.png", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "380 KB"},
-    {"Archivo", "presentación27.pptx", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "1.7 MB"},
-    {"Archivo", "documento28.txt", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "13 KB"},
-    {"Carpeta", "descargas", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "—"},
-    {"Archivo", "video29.mp4", new SimpleDateFormat("dd/MM/yyyy").format(new Date()), "3.5 MB"}
-    
-        };
-        
-        DefaultTableModel model = new DefaultTableModel(data, columnNames) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false; // Hacer todas las celdas no editables
-            }
-        };
-         
-        JTable table = new JTable(model);
-        
-        // Quitar las líneas de la cuadrícula
-        table.setShowGrid(false);
-        table.getTableHeader().setReorderingAllowed(false);
-        table.setRowSelectionAllowed(true);
-        table.setColumnSelectionAllowed(false);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        
-        DefaultTableCellRenderer defaultRenderer = new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value,
-                                                           boolean isSelected, boolean hasFocus, int row, int column) {
-                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                if (isSelected) {
-                    c.setBackground(table.getSelectionBackground());
-                    c.setForeground(table.getSelectionForeground());
-                } else {
-                    c.setBackground(table.getBackground());
-                    c.setForeground(table.getForeground());
-                }
-                return c;
-            }
-        };
 
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-        
-        DefaultTableCellRenderer leftRenderer = new DefaultTableCellRenderer();
-        leftRenderer.setHorizontalAlignment(SwingConstants.LEFT);
-        
-        DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
-        rightRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
+        /*
+         *Configuracion de la tabla que sirve para mostrar el directorio actual
+         */
+        model = new TableModelPersonalizada(Ctrl.buscarNodo(Var.getLista()));
+        TablaPersonalizada tabla = new TablaPersonalizada(model);
+        //Asigna colores a la tabla
+        JTableHeader header = tabla.getTableHeader();
+        header.setBackground(Color.DARK_GRAY);
+        header.setForeground(Color.WHITE);
+        JScrollPane scrollPane = new JScrollPane(tabla);
+        JViewport viewport = scrollPane.getViewport();
+        viewport.setBackground(Color.WHITE);
 
-        for (int i = 0; i < table.getColumnCount(); i++) {
-            table.getColumnModel().getColumn(i).setCellRenderer(defaultRenderer);
-        }
-
-        table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer); // Tipo
-        table.getColumnModel().getColumn(1).setCellRenderer(leftRenderer);   // Nombre
-        table.getColumnModel().getColumn(2).setCellRenderer(centerRenderer); // Fecha
-        table.getColumnModel().getColumn(3).setCellRenderer(rightRenderer);  // Tamaño
-
-        table.getColumnModel().getColumn(0).setPreferredWidth(10); // Tipo
-        table.getColumnModel().getColumn(1).setPreferredWidth(300); // Nombre
-        table.getColumnModel().getColumn(2).setPreferredWidth(50); // Fecha
-        table.getColumnModel().getColumn(3).setPreferredWidth(50); // Tamaño
-        
-        JScrollPane scrollPane = new JScrollPane(table);
-        
+        /*
+         *Se crea y configura el popMenu para [CREAR]
+         *Carpetas, Archivos, Propiedades
+         */
         JPopupMenu popupMenu = new JPopupMenu();
-
         JMenu menu = new JMenu("Nuevo");
-
-        JMenuItem item0 = new JMenuItem("Ver");
         JMenuItem nuevaCarpetaItem = new JMenuItem("Carpeta");
         JMenuItem nuevoArchivoItem = new JMenuItem("Archivo");
+        JMenuItem moverAqui = new JMenuItem("Mover Aqui");
         JMenuItem propiedades = new JMenuItem("Propiedades");
-
+        moverAqui.setEnabled(false);
         menu.add(nuevaCarpetaItem);
         menu.add(nuevoArchivoItem);
-
-        popupMenu.add(item0);
         popupMenu.add(menu);
+        popupMenu.add(moverAqui);
         popupMenu.add(new JSeparator());
         popupMenu.add(propiedades);
 
-        panelCenter.setComponentPopupMenu(popupMenu);
-        panelCenter.add(scrollPane, BorderLayout.CENTER);
+        /*
+         *Se crea y configura el popMenu para cuando esta seleccionado un elemento
+         *Editar, Copiar, Mover, Eliminar, Propiedades
+         */
+        JPopupMenu popupMenuConSeleccion = new JPopupMenu();
+        JMenuItem editar = new JMenuItem("Editar");
+        JMenuItem copiar = new JMenuItem("Copiar");
+        JMenuItem mover = new JMenuItem("Mover");
+        JMenuItem elimnar = new JMenuItem("Eliminar");
+        JMenuItem propiedad = new JMenuItem("Propiedades");
+        popupMenuConSeleccion.add(editar);
+        popupMenuConSeleccion.add(copiar);
+        popupMenuConSeleccion.add(mover);
+        popupMenuConSeleccion.add(elimnar);
+        popupMenuConSeleccion.add(new JPopupMenu.Separator());
+        popupMenuConSeleccion.add(propiedad);
 
-        panelCenter.addMouseListener(new MouseAdapter()
+        tabla.addMouseListener(new MouseAdapter()
         {
             @Override
             public void mousePressed(MouseEvent e)
             {
                 if (e.isPopupTrigger())
                 {
-                    showPopupMenu(e);
+                    mostrarMenuEmergente(e);
                 }
             }
 
@@ -291,37 +254,126 @@ public class VentanaPrincipal extends JFrame
             {
                 if (e.isPopupTrigger())
                 {
-                    showPopupMenu(e);
+                    mostrarMenuEmergente(e);
                 }
             }
 
-            private void showPopupMenu(MouseEvent e)
+            private void mostrarMenuEmergente(MouseEvent e)
             {
-                popupMenu.show(e.getComponent(), e.getX(), e.getY());
+                if (!tabla.isRowSelected(tabla.rowAtPoint(e.getPoint())))
+                {
+                    popupMenu.show(e.getComponent(), e.getX(), e.getY());
+                } else
+                {
+                    int filaSeleccionada = tabla.rowAtPoint(e.getPoint());
+                    tabla.setRowSelectionInterval(filaSeleccionada, filaSeleccionada);
+                    popupMenuConSeleccion.show(e.getComponent(), e.getX(), e.getY());
+                }
             }
         });
+
+//        scrollPane.addMouseListener(new MouseAdapter()
+//        {
+//            @Override
+//            public void mouseClicked(MouseEvent e)
+//            {
+//                if (tabla.getSelectedColumn() != -1)
+//                {
+//                    tabla.setColumnSelectionAllowed(false);
+//                    tabla.clearSelection();
+//                }
+//            }
+//        });
+        scrollPane.addFocusListener(new FocusAdapter()
+        {
+            @Override
+            public void focusLost(FocusEvent e)
+            {
+                if (tabla.getSelectedColumn() != -1)
+                {
+                    tabla.setColumnSelectionAllowed(false);
+                    tabla.clearSelection();
+                    System.out.println("B");
+                }
+                System.out.println("A");
+            }
+        });
+        scrollPane.addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mousePressed(MouseEvent e)
+            {
+                if (e.isPopupTrigger())
+                {
+                    mostrarMenuEmergente(e);
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e)
+            {
+                if (e.isPopupTrigger())
+                {
+                    mostrarMenuEmergente(e);
+                }
+            }
+            
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                if (tabla.getSelectedColumn() != -1)
+                {
+                    tabla.setColumnSelectionAllowed(false);
+                    tabla.clearSelection();
+                }
+            }
+
+            private void mostrarMenuEmergente(MouseEvent e)
+            {
+                if (e.isPopupTrigger())
+                {
+                    int filaSeleccionada = tabla.rowAtPoint(e.getPoint());
+                    if (filaSeleccionada == -1)
+                    {
+                        popupMenu.show(e.getComponent(), e.getX(), e.getY());
+                    } else
+                    {
+                        tabla.setRowSelectionInterval(filaSeleccionada, filaSeleccionada);
+                        popupMenuConSeleccion.show(e.getComponent(), e.getX(), e.getY());
+                    }
+                }
+            }
+        });
+
+        panelCenter.add(panelNorth, BorderLayout.NORTH);
+        panelCenter.add(scrollPane, BorderLayout.CENTER);
 
         nuevaCarpetaItem.addActionListener(new ActionListener()
         {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                new VentanaNuevo(VentanaPrincipal.this, "Nueva Carpeta", 'C').setVisible(true);
+                new VentanaNuevo(VentanaPrincipal.this, "Nueva Carpeta", 'C', model).setVisible(true);
             }
         });
+
         nuevoArchivoItem.addActionListener(new ActionListener()
         {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                new VentanaNuevo(VentanaPrincipal.this, "Nuevo Archivo", 'A').setVisible(true);
+                new VentanaNuevo(VentanaPrincipal.this, "Nuevo Archivo", 'A', model).setVisible(true);
             }
         });
     }
 
+    /*
+     *Muestra el numero de elementos
+     */
     private void initPanelSouth()
     {
-        panelSouth = new JPanel();
+        panelSouth = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         panelSouth.setBackground(Color.WHITE);
+        panelSouth.add(new JLabel("15 elementos encontrados        "));
     }
 }

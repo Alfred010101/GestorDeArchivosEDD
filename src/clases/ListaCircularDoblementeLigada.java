@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
  *
  * @author Alfred
  */
+
 public class ListaCircularDoblementeLigada
 {
 
@@ -59,8 +60,7 @@ public class ListaCircularDoblementeLigada
         boolean esArchivoElPrimerNodo = matcher2.matches();
 
         if ((!esArchivoElNodoAInsertar && esArchivoElPrimerNodo) || (!esArchivoElNodoAInsertar && !esArchivoElPrimerNodo && nodo.getEtiqueta().compareToIgnoreCase(raiz.getSiguiente().getEtiqueta()) < 0) || (esArchivoElNodoAInsertar && esArchivoElPrimerNodo && nodo.getEtiqueta().compareToIgnoreCase(raiz.getSiguiente().getEtiqueta()) < 0))
-//        if ((!esArchivoElNodoAInsertar && esArchivoElPrimerNodo) || nodo.getEtiqueta().compareToIgnoreCase(raiz.getSiguiente().getEtiqueta()) < 0)
-        {
+       {
             nodo.setSiguiente(raiz.getSiguiente());
             nodo.setAnterior(raiz);
             raiz.getSiguiente().setAnterior(nodo);
@@ -72,8 +72,7 @@ public class ListaCircularDoblementeLigada
         boolean esArchivoElUltimoNodo = matcher2.matches();
 
         if ((!esArchivoElUltimoNodo && esArchivoElNodoAInsertar) || (esArchivoElUltimoNodo && esArchivoElNodoAInsertar && nodo.getEtiqueta().compareToIgnoreCase(raiz.getEtiqueta()) > 0) || (!esArchivoElUltimoNodo && !esArchivoElNodoAInsertar && nodo.getEtiqueta().compareToIgnoreCase(raiz.getEtiqueta()) > 0))
-//        if (!esArchivoElUltimoNodo ||d nodo.getEtiqueta().compareToIgnoreCase(raiz.getEtiqueta()) > 0)
-        {
+       {
             nodo.setSiguiente(raiz.getSiguiente());
             nodo.setAnterior(raiz);
             raiz.getSiguiente().setAnterior(nodo);
@@ -97,81 +96,10 @@ public class ListaCircularDoblementeLigada
                 aux.setSiguiente(nodo);
                 return true;
             }
-//            if (!direccion && esArchivo)
-//            {
-//                nodo.setSiguiente(aux);
-//                nodo.setAnterior(aux.getAnterior());
-//                nodo.getAnterior().setSiguiente(nodo);
-//                aux.setAnterior(nodo);
-//                return true;
-//            }
-            
-            //aux = aux.getSiguiente();
             aux = (esArchivoElNodoAInsertar) ? aux.getAnterior() : aux.getSiguiente();
             matcher2 = pattern.matcher(aux.getEtiqueta());
             esArchivo = matcher2.matches();
         }
-
-//        if (esArchivo)
-//        {
-//            while (aux != raiz)
-//            {
-//                if (nodo.getEtiqueta().compareToIgnoreCase(aux.getEtiqueta()) > 0 || !esArchivo)
-//                {
-//                    nodo.setSiguiente(aux.getSiguiente());
-//                    nodo.setAnterior(aux);
-//                    aux.getSiguiente().setAnterior(nodo);
-//                    aux.setSiguiente(nodo);
-//                    return true;
-//                }
-//                //aux = aux.getSiguiente();
-//                aux = (esArchivoElNodoAInsertar) ? aux.getAnterior() : aux.getSiguiente();
-//                matcher2 = pattern.matcher(aux.getEtiqueta());
-//                esArchivo = matcher2.matches();
-//            }
-//            return false;
-//        } else
-//        {
-//            while (aux != raiz)
-//            {
-//                if (nodo.getEtiqueta().compareToIgnoreCase(aux.getSiguiente().getEtiqueta()) < 0)
-//                {
-//                    nodo.setSiguiente(aux.getSiguiente());
-//                    nodo.setAnterior(aux);
-//                    aux.getSiguiente().setAnterior(nodo);
-//                    aux.setSiguiente(nodo);
-//                    return true;
-//                }
-//                if (esArchivo)
-//                {
-//                    nodo.setSiguiente(aux);
-//                    nodo.setAnterior(aux.getAnterior());
-//                    nodo.getAnterior().setSiguiente(nodo);
-//                    aux.setAnterior(nodo);
-//                    return true;
-//                }
-//                //aux = aux.getSiguiente();
-//                aux = (esArchivoElNodoAInsertar) ? aux.getAnterior() : aux.getSiguiente();
-//                matcher2 = pattern.matcher(aux.getEtiqueta());
-//                esArchivo = matcher2.matches();
-//            }
-//            return false;
-//        }
-//        while (aux != raiz)
-//        {
-//            if ((nodo.getEtiqueta().compareToIgnoreCase(aux.getSiguiente().getEtiqueta()) < 0  && !esArchivo) || (nodo.getEtiqueta().compareToIgnoreCase(aux.getEtiqueta()) > 0  && esArchivo )  || (!esArchivoElNodoAInsertar && esArchivo) || (!esArchivo && esArchivoElNodoAInsertar))
-//            {
-//                nodo.setSiguiente(aux.getSiguiente());
-//                nodo.setAnterior(aux);
-//                aux.getSiguiente().setAnterior(nodo);
-//                aux.setSiguiente(nodo);
-//                return true;
-//            }
-//            //aux = aux.getSiguiente();
-//            aux = (esArchivoElNodoAInsertar) ? aux.getAnterior() : aux.getSiguiente();
-//            matcher2 = (esArchivoElNodoAInsertar) ? pattern.matcher(aux.getEtiqueta()) : pattern.matcher(aux.getEtiqueta());
-//            esArchivo = matcher2.matches();
-//        }
         return false;
     }
 
