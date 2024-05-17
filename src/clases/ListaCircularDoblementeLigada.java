@@ -174,16 +174,20 @@ public class ListaCircularDoblementeLigada
         return null;
     }
 
-    public Nodo buscarNodo(String etiqueta)
+        
+    public Nodo buscarNodo(String etq)
     {
-        Nodo aux = raiz;
-        while (aux != null)
+        if (raiz != null)
         {
-            if (aux.getEtiqueta().equals(etiqueta))
+            Nodo aux = raiz.getSiguiente();
+            do
             {
-                return aux;
-            }
-            aux = aux.getSiguiente();
+                if (aux.getEtiqueta().equals(etq))
+                {
+                    return aux;
+                }
+                aux = aux.getSiguiente();
+            } while (aux != raiz.getSiguiente());
         }
         return null;
     }

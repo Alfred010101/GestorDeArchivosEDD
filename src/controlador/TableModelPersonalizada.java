@@ -82,7 +82,6 @@ public class TableModelPersonalizada extends AbstractTableModel
     public void actualizarTabla(List<Archivo> nuevosArchivos)
     {
         files.clear();
-        System.out.println("SADSA");
         files.addAll(nuevosArchivos);
         fireTableDataChanged();
     }

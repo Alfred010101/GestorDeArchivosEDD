@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package controlador;
-import clases.ListaCircularDoblementeLigada;
+import clases.Multilista;
 
 /**
  *
@@ -12,24 +12,20 @@ import clases.ListaCircularDoblementeLigada;
 
 public class Var
 {
-    private static ListaCircularDoblementeLigada lista = new ListaCircularDoblementeLigada();
-
+    private static Multilista multilista = new Multilista();
     /**
-     * @return the lista
+     * @return the multilista
      */
-    public static ListaCircularDoblementeLigada getLista()
+    public static Multilista getMultilista()
     {
-        return lista;
+        return multilista;
     }
 
     /**
-     * @param aLista the lista to set
+     * @param aMultilista the multilista to set
      */
-    public static void setLista(ListaCircularDoblementeLigada aLista)
+    public static void setMultilista(Multilista aMultilista)
     {
-        lista = aLista;
-    }
-    
-    
-    
+        multilista = aMultilista;
+    }    
 }

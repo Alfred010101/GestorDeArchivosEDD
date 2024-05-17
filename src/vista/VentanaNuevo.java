@@ -1,5 +1,6 @@
 package vista;
 
+import clases.Nodo;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
@@ -14,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import controlador.*;
+import static controlador.Ctrl.splitPath;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -39,14 +41,16 @@ public class VentanaNuevo extends JDialog
     JTextField ruta;
     JTextField autor;
     private final char tipo;
+    private final String dir;
     private final TableModelPersonalizada model;
     final String pathImagenes = "src/vista/imagenes/";
 
-    public VentanaNuevo(JFrame frame, String titulo, char tipo, TableModelPersonalizada model)
+    public VentanaNuevo(JFrame frame, String titulo, char tipo, TableModelPersonalizada model, String dir)
     {
         super(frame, titulo, true);
         this.model = model;
         this.tipo = tipo;
+        this.dir = dir;
         this.setSize(450, 320);
         this.setLocationRelativeTo(frame);
         this.setResizable(false);
@@ -76,8 +80,8 @@ public class VentanaNuevo extends JDialog
 
         nombre = new JTextField(10);
         peso = new JTextField(5);
-        ruta = new JTextField("Users", 25);
-        autor = new JTextField("Alfred", 10);
+        ruta = new JTextField("C:/" + dir, 25);
+        autor = new JTextField(System.getProperty("user.name"), 10);
         ruta.setEditable(false);
         autor.setEditable(false);
 
@@ -158,19 +162,27 @@ public class VentanaNuevo extends JDialog
 
     private void crear()
     {
-        if (!nombre.getText().isBlank() || (tipo == 'A' && !peso.getText().isBlank()))
+        if (!nombre.getText().trim().isBlank() || (tipo == 'A' && !peso.getText().isBlank()))
         {
-            String[] nombreExtencion = Ctrl.validarNombre(nombre.getText(), tipo);
+            String[] nombreExtencion = Ctrl.validarNombre(nombre.getText().trim(), tipo);
             if (nombreExtencion != null)
             {
                 int tamanio = (tipo == 'A') ? Ctrl.esNumeroValido(peso.getText()) : 0;
 
                 if (tamanio > 0 || tipo == 'C')
                 {
-                    boolean estado = Ctrl.crear(nombreExtencion[0], nombreExtencion[1], autor.getText(), tipo, tamanio, ruta.getText());
+                    boolean estado = Ctrl.crear(nombreExtencion[0], nombreExtencion[1], autor.getText(), tipo, tamanio, dir);
                     if (estado)
                     {
-                        model.actualizarTabla(Ctrl.buscarNodo(Var.getLista()));
+                        String[]arr = splitPath(dir);
+                        if (arr.length > 0)
+                        {
+                            Nodo dirActual = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, arr, arr[arr.length -1]);
+                            model.actualizarTabla(Ctrl.cargarDirectorio(dirActual.getAbajo()));                            
+                        }else
+                        {
+                            model.actualizarTabla(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
+                        }             
                         VentanaNuevo.this.dispose();
                     } else
                     {
@@ -190,6 +202,9 @@ public class VentanaNuevo extends JDialog
         }
     }
 
+    /*
+      Cerrar la ventana presionando ESC
+    */
     private void addEscapeListener()
     {
         KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
