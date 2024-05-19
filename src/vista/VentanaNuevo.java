@@ -38,12 +38,12 @@ public class VentanaNuevo extends JDialog
     private JLabel icono;
     private JTextField nombre;
     private JTextField peso;
-    JTextField ruta;
-    JTextField autor;
+    private JTextField ruta;
+    private JTextField autor;
     private final char tipo;
     private final String dir;
     private final TableModelPersonalizada model;
-    final String pathImagenes = "src/vista/imagenes/";
+    private final String pathImagenes = "src/vista/imagenes/";
 
     public VentanaNuevo(JFrame frame, String titulo, char tipo, TableModelPersonalizada model, String dir)
     {
@@ -54,7 +54,6 @@ public class VentanaNuevo extends JDialog
         this.setSize(450, 320);
         this.setLocationRelativeTo(frame);
         this.setResizable(false);
-
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         initComponents();
         addEscapeListener();
@@ -122,7 +121,6 @@ public class VentanaNuevo extends JDialog
                 {
                     enterKeyPressed(e.getKeyChar());
                 }
-
             }
         });
 
@@ -162,17 +160,17 @@ public class VentanaNuevo extends JDialog
 
     private void crear()
     {
-        if (!nombre.getText().trim().isBlank() || (tipo == 'A' && !peso.getText().isBlank()))
+        if (!nombre.getText().trim().isBlank() && (tipo == 'C' || (tipo == 'A' && !peso.getText().isBlank())))
         {
             String[] nombreExtencion = Ctrl.validarNombre(nombre.getText().trim(), tipo);
             if (nombreExtencion != null)
             {
-                int tamanio = (tipo == 'A') ? Ctrl.esNumeroValido(peso.getText()) : 0;
-
+                int tamanio = (tipo == 'A') ? Ctrl.esNumeroValido(peso.getText().trim()) : 0;
                 if (tamanio > 0 || tipo == 'C')
                 {
                     boolean estado = Ctrl.crear(nombreExtencion[0], nombreExtencion[1], autor.getText(), tipo, tamanio, dir);
-                    if (estado)
+                    boolean guardado = ManipulacionArchivos.guardar(Var.getMultilista(), "datos.dat");
+                    if (estado && guardado)
                     {
                         String[]arr = splitPath(dir);
                         if (arr.length > 0)

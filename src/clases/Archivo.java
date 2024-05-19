@@ -1,11 +1,14 @@
 
 package clases;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Alfred
  */
-public class Archivo
+
+public class Archivo implements Serializable
 {
     private String nombre;
     private String extension;

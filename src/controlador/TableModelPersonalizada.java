@@ -50,7 +50,7 @@ public class TableModelPersonalizada extends AbstractTableModel
             case 2:
                 return file.getFecha();
             case 3:
-                return String.format("%,d KB   ", file.getTamanio());
+                return (file.getTipo() == 'A') ? String.format("%,d KB   ", file.getTamanio()) : "";
             //return file.getTamanio() + " KB";
             default:
                 return null;
@@ -83,6 +83,13 @@ public class TableModelPersonalizada extends AbstractTableModel
     {
         files.clear();
         files.addAll(nuevosArchivos);
+        if (!nuevosArchivos.isEmpty())
+        {
+            Var.getContador().setText(nuevosArchivos.size() + " elementos econtrados        ");
+        }else
+        {
+            Var.getContador().setText("Directorio vacio        ");
+        }
         fireTableDataChanged();
     }
 

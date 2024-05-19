@@ -1,13 +1,15 @@
 
 package clases;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Alfred
  * @param <T>
  */
 
-public class Nodo<T>
+public class Nodo<T> implements Serializable
 {
     private String etiqueta;
     private T objecto;

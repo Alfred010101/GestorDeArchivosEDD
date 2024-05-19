@@ -3,7 +3,7 @@ package vista;
 import clases.Archivo;
 import clases.Nodo;
 import controlador.Ctrl;
-import static controlador.Ctrl.splitPath;
+import controlador.ManipulacionArchivos;
 import controlador.TablaPersonalizada;
 import controlador.TableModelPersonalizada;
 import controlador.Var;
@@ -25,7 +25,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.JViewport;
 import javax.swing.border.EmptyBorder;
@@ -162,18 +161,18 @@ public class VentanaPrincipal extends JFrame
             {
                 if (!ruta.getText().isBlank())
                 {
-                    String[] arr = splitPath(ruta.getText());
+                    String[] arr = Ctrl.splitPath(ruta.getText());
                     if (arr.length > 0)
                     {
                         Nodo directorioIr = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, arr, arr[arr.length - 1]);
                         directorioIr = (directorioIr.getArriba() != null) ? directorioIr.getArriba().getAbajo() : Var.getMultilista().getRaiz();
                         model.actualizarTabla(Ctrl.cargarDirectorio(directorioIr));
-                        if(directorioIr.getObjecto() instanceof Archivo x)
+                        if (directorioIr.getObjecto() instanceof Archivo x)
                         {
                             ruta.setText(x.getRuta());
                         }
                     }
-                } 
+                }
             }
         });
 
@@ -209,6 +208,7 @@ public class VentanaPrincipal extends JFrame
          *Configuracion de la tabla que sirve para mostrar el directorio actual
          */
         model = new TableModelPersonalizada(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
+        model.actualizarTabla(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
         TablaPersonalizada tabla = new TablaPersonalizada(model);
         //Asigna colores a la tabla
         JTableHeader header = tabla.getTableHeader();
@@ -227,14 +227,14 @@ public class VentanaPrincipal extends JFrame
         JMenuItem nuevaCarpetaItem = new JMenuItem("Carpeta");
         JMenuItem nuevoArchivoItem = new JMenuItem("Archivo");
         JMenuItem moverAqui = new JMenuItem("Mover Aqui");
-        JMenuItem propiedades = new JMenuItem("Propiedades");
+//        JMenuItem propiedades = new JMenuItem("Propiedades");
         moverAqui.setEnabled(false);
         menu.add(nuevaCarpetaItem);
         menu.add(nuevoArchivoItem);
         popupMenu.add(menu);
         popupMenu.add(moverAqui);
-        popupMenu.add(new JSeparator());
-        popupMenu.add(propiedades);
+//        popupMenu.add(new JSeparator());
+//        popupMenu.add(propiedades);
 
         /*
          *Se crea y configura el popMenu para cuando esta seleccionado un elemento
@@ -245,13 +245,13 @@ public class VentanaPrincipal extends JFrame
         JMenuItem copiar = new JMenuItem("Copiar");
         JMenuItem mover = new JMenuItem("Mover");
         JMenuItem elimnar = new JMenuItem("Eliminar");
-        JMenuItem propiedad = new JMenuItem("Propiedades");
+        JMenuItem propiedades = new JMenuItem("Propiedades");
         popupMenuConSeleccion.add(editar);
         popupMenuConSeleccion.add(copiar);
         popupMenuConSeleccion.add(mover);
         popupMenuConSeleccion.add(elimnar);
         popupMenuConSeleccion.add(new JPopupMenu.Separator());
-        popupMenuConSeleccion.add(propiedad);
+        popupMenuConSeleccion.add(propiedades);
 
         tabla.addMouseListener(new MouseAdapter()
         {
@@ -294,35 +294,23 @@ public class VentanaPrincipal extends JFrame
             {
                 if (e.getClickCount() == 2)
                 {
-                    String nom = tabla.getValueAt(tabla.getSelectedRow(), 1).toString();
-                    Nodo seleccionado = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, splitPath(ruta.getText() + nom), nom);
+                    String directorioSeleccionado = tabla.getValueAt(tabla.getSelectedRow(), 1).toString();
+                    Nodo seleccionado = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, Ctrl.splitPath(ruta.getText() + directorioSeleccionado), directorioSeleccionado);
                     if (seleccionado != null && seleccionado.getObjecto() instanceof Archivo x)
                     {
                         if (x.getTipo() == 'C')
                         {
-                            ruta.setText(ruta.getText() + nom + "/");
+                            ruta.setText(ruta.getText() + directorioSeleccionado + "/");
                             model.actualizarTabla(Ctrl.cargarDirectorio(seleccionado.getAbajo()));
                         }
-                    } else
-                    {
-                        System.out.println("Nom");
                     }
                 }
             }
         });
 
-//        scrollPane.addMouseListener(new MouseAdapter()
-//        {
-//            @Override
-//            public void mouseClicked(MouseEvent e)
-//            {
-//                if (tabla.getSelectedColumn() != -1)
-//                {
-//                    tabla.setColumnSelectionAllowed(false);
-//                    tabla.clearSelection();
-//                }
-//            }
-//        });
+        /*
+         * Quita la seleccion de la fila cuando damos click fuera
+         */
         scrollPane.addFocusListener(new FocusAdapter()
         {
             @Override
@@ -335,6 +323,10 @@ public class VentanaPrincipal extends JFrame
                 }
             }
         });
+
+        /*
+         * Inica cuando mostrar el popMenu, tambien quita la seleccion de una fila
+         */
         scrollPane.addMouseListener(new MouseAdapter()
         {
             @Override
@@ -400,21 +392,61 @@ public class VentanaPrincipal extends JFrame
             }
         });
 
-        propiedad.addActionListener(new ActionListener()
+        editar.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                String archivoSeleccionado = tabla.getValueAt(tabla.getSelectedRow(), 1).toString();
+                Nodo seleccionado = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, Ctrl.splitPath(ruta.getText() + archivoSeleccionado), archivoSeleccionado);
+                if (seleccionado != null && seleccionado.getObjecto() instanceof Archivo x)
+                {
+                    new VentanaPropiedades(VentanaPrincipal.this, archivoSeleccionado, x, true, model).setVisible(true);
+                }
+            }
+        });
+
+        elimnar.addActionListener(new ActionListener()
         {
             @Override
             public void actionPerformed(ActionEvent e)
             {
                 String nom = tabla.getValueAt(tabla.getSelectedRow(), 1).toString();
-                Nodo seleccionado = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, splitPath(ruta + nom), nom);
-                if (seleccionado != null && seleccionado.getObjecto() instanceof Archivo x)
+                String[] rutaa = Ctrl.splitPath(ruta.getText());
+                //Nodo seleccionado = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, Ctrl.splitPath(ruta.getText() + nom), nom);
+                Var.getMultilista().setRaiz(Var.getMultilista().elimina(Var.getMultilista().getRaiz(), 0, Ctrl.splitPath(ruta.getText() + nom), nom));
+
+                boolean guardado = ManipulacionArchivos.guardar(Var.getMultilista(), "datos.dat");
+
+                if (guardado)
                 {
-                    new VentanaPropiedades(VentanaPrincipal.this, nom, x).setVisible(true);
+                    if (rutaa.length > 0)
+                    {
+                        Nodo directorio = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, rutaa, rutaa[rutaa.length - 1]);
+                        model.actualizarTabla(Ctrl.cargarDirectorio(directorio.getAbajo()));
+                    } else
+                    {
+                        model.actualizarTabla(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
+                    }
                 }
 
             }
         });
-        
+
+        propiedades.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                String archivoSeleccionado = tabla.getValueAt(tabla.getSelectedRow(), 1).toString();
+                Nodo seleccionado = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, Ctrl.splitPath(ruta.getText() + archivoSeleccionado), archivoSeleccionado);
+                if (seleccionado != null && seleccionado.getObjecto() instanceof Archivo x)
+                {
+                    new VentanaPropiedades(VentanaPrincipal.this, archivoSeleccionado, x, false, null).setVisible(true);
+                }
+            }
+        });
+
         panelCenter.add(panelNorth, BorderLayout.NORTH);
         panelCenter.add(scrollPane, BorderLayout.CENTER);
     }
@@ -426,6 +458,6 @@ public class VentanaPrincipal extends JFrame
     {
         panelSouth = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         panelSouth.setBackground(Color.WHITE);
-        panelSouth.add(new JLabel("15 elementos encontrados        "));
+        panelSouth.add(Var.getContador());
     }
 }

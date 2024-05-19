@@ -1,9 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package controlador;
 import clases.Multilista;
+import javax.swing.JLabel;
 
 /**
  *
@@ -13,6 +11,7 @@ import clases.Multilista;
 public class Var
 {
     private static Multilista multilista = new Multilista();
+    private static JLabel contador = new JLabel("Directorio vacio        ");
     /**
      * @return the multilista
      */
@@ -28,4 +27,20 @@ public class Var
     {
         multilista = aMultilista;
     }    
+
+    /**
+     * @return the contador
+     */
+    public static JLabel getContador()
+    {
+        return contador;
+    }
+
+    /**
+     * @param aContador the contador to set
+     */
+    public static void setContador(JLabel aContador)
+    {
+        contador = aContador;
+    }
 }

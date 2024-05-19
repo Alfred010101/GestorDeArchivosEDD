@@ -1,5 +1,6 @@
 package clases;
 
+import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -8,7 +9,7 @@ import java.util.regex.Pattern;
  * @author Alfred
  */
 
-public class ListaCircularDoblementeLigada
+public class ListaCircularDoblementeLigada implements Serializable
 {
 
     private Nodo raiz;
@@ -105,26 +106,19 @@ public class ListaCircularDoblementeLigada
 
     public Nodo eliminar(String etiqueta)
     {
-        //Comprueva si la lista esta VACIA.
         if (raiz == null)
         {
             return null;
         }
 
         Nodo aux = raiz;
-
-        //Comprueva si el NODO a ELIMINAR es el UNICO elemento en la lista.
         if (raiz.getEtiqueta().equals(etiqueta) && raiz.getSiguiente() == raiz && raiz.getAnterior() == raiz)
         {
             raiz = null;
             return aux;
         }
 
-        Matcher matcher = pattern.matcher(etiqueta);
-        boolean matches = matcher.matches();
-
-        //Comprueva si el NODO a  ELIMINAR es el PRIMER elemento de la lista.
-        if (!matches && raiz.getSiguiente().getEtiqueta().equals(etiqueta))
+        if (raiz.getSiguiente().getEtiqueta().equals(etiqueta))
         {
             aux = raiz.getSiguiente();
             raiz.setSiguiente(aux.getSiguiente());
@@ -134,8 +128,7 @@ public class ListaCircularDoblementeLigada
             return aux;
         }
 
-        //Comprueva si el NODO a  ELIMINAR es el ULTIMO elemento de la lista.
-        if (matches && raiz.getEtiqueta().equals(etiqueta))
+        if (raiz.getEtiqueta().equals(etiqueta))
         {
             raiz = aux.getAnterior();
             raiz.setSiguiente(aux.getSiguiente());
@@ -145,15 +138,10 @@ public class ListaCircularDoblementeLigada
             return aux;
         }
 
-        //asigna a aux un nodo dependiendo de si la etiqueta pertenece a una carpeta o archivo
-        aux = (matches) ? aux.getAnterior() : aux.getSiguiente().getSiguiente();
-
-        matcher = pattern.matcher(aux.getEtiqueta());
-
-        //Busca el nodo a elimiar en la lista excluyendo los extremos
-        while (aux != raiz && ((matches && matcher.matches()) || (!matches && !matcher.matches())))
+        aux = aux.getSiguiente().getSiguiente();
+        while (aux != raiz)
         {
-            if ((!matches && aux.getEtiqueta().compareToIgnoreCase(etiqueta) > 0) || (matches && aux.getEtiqueta().compareToIgnoreCase(etiqueta) < 0))
+            if (aux.getEtiqueta().compareTo(etiqueta) > 0)
             {
                 System.out.print("No encontrado ");
                 return null;
@@ -166,13 +154,81 @@ public class ListaCircularDoblementeLigada
                 aux.setAnterior(null);
                 return aux;
             }
-            //aux = aux.getSiguiente();
-            aux = (matches) ? aux.getAnterior() : aux.getSiguiente();
-
-            matcher = pattern.matcher(aux.getEtiqueta());
+            aux = aux.getSiguiente();
         }
         return null;
     }
+    
+//    public Nodo eliminar(String etiqueta)
+//    {
+//        //Comprueva si la lista esta VACIA.
+//        if (raiz == null)
+//        {
+//            return null;
+//        }
+//
+//        Nodo aux = raiz;
+//
+//        //Comprueva si el NODO a ELIMINAR es el UNICO elemento en la lista.
+//        if (raiz.getEtiqueta().equals(etiqueta) && raiz.getSiguiente() == raiz && raiz.getAnterior() == raiz)
+//        {
+//            raiz = null;
+//            return aux;
+//        }
+//
+//        Matcher matcher = pattern.matcher(etiqueta);
+//        boolean matches = matcher.matches();
+//
+//        //Comprueva si el NODO a  ELIMINAR es el PRIMER elemento de la lista.
+//        if (!matches && raiz.getSiguiente().getEtiqueta().equals(etiqueta))
+//        {
+//            aux = raiz.getSiguiente();
+//            raiz.setSiguiente(aux.getSiguiente());
+//            raiz.getSiguiente().setAnterior(raiz);
+//            aux.setSiguiente(null);
+//            aux.setAnterior(null);
+//            return aux;
+//        }
+//
+//        //Comprueva si el NODO a  ELIMINAR es el ULTIMO elemento de la lista.
+//        if (matches && raiz.getEtiqueta().equals(etiqueta))
+//        {
+//            raiz = aux.getAnterior();
+//            raiz.setSiguiente(aux.getSiguiente());
+//            raiz.getSiguiente().setAnterior(raiz);
+//            aux.setSiguiente(null);
+//            aux.setAnterior(null);
+//            return aux;
+//        }
+//
+//        //asigna a aux un nodo dependiendo de si la etiqueta pertenece a una carpeta o archivo
+//        aux = (matches) ? aux.getAnterior() : aux.getSiguiente().getSiguiente();
+//
+//        matcher = pattern.matcher(aux.getEtiqueta());
+//
+//        //Busca el nodo a elimiar en la lista excluyendo los extremos
+//        while (aux != raiz && ((matches && matcher.matches()) || (!matches && !matcher.matches())))
+//        {
+//            if ((!matches && aux.getEtiqueta().compareToIgnoreCase(etiqueta) > 0) || (matches && aux.getEtiqueta().compareToIgnoreCase(etiqueta) < 0))
+//            {
+//                System.out.print("No encontrado ");
+//                return null;
+//            }
+//            if (aux.getEtiqueta().equals(etiqueta))
+//            {
+//                aux.getAnterior().setSiguiente(aux.getSiguiente());
+//                aux.getSiguiente().setAnterior(aux.getAnterior());
+//                aux.setSiguiente(null);
+//                aux.setAnterior(null);
+//                return aux;
+//            }
+//            //aux = aux.getSiguiente();
+//            aux = (matches) ? aux.getAnterior() : aux.getSiguiente();
+//
+//            matcher = pattern.matcher(aux.getEtiqueta());
+//        }
+//        return null;
+//    }
 
         
     public Nodo buscarNodo(String etq)
