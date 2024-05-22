@@ -18,6 +18,8 @@ import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -26,10 +28,14 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
+import javax.swing.JTree;
 import javax.swing.JViewport;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.JTableHeader;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 
 /**
  *
@@ -49,11 +55,14 @@ public class VentanaPrincipal extends JFrame
     private JTextField busca;
     private JLabel dirAnterior;
     private TableModelPersonalizada model;
-    final String pathImagenes = "src/vista/imagenes/";
-
+    private JSplitPane splitPane;
+    private final String pathImagenes = "src/vista/imagenes/";
+    private final int minLeftPanelWidth = 100;
+    private final int maxLeftPanelWidth = 200;
+    
     public VentanaPrincipal()
     {
-        this.setSize(900, 600);
+        this.setSize(1100, 600);
         this.setTitle("Gestor de Archivos - {FileMaster}");
         this.setMinimumSize(new Dimension(850, 400));
         this.setLocationRelativeTo(null);
@@ -71,13 +80,43 @@ public class VentanaPrincipal extends JFrame
         initPanelWest();
         initPanelCenter();
         initPanelSouth();
+        initSplitPane();
 
+        panelPrincipal.add(panelNorth, BorderLayout.NORTH);
         //panelPrincipal.add(panelNorth, BorderLayout.NORTH);
         // panelPrincipal.add(panelWest, BorderLayout.WEST);
-        panelPrincipal.add(panelCenter, BorderLayout.CENTER);
+        panelPrincipal.add(splitPane, BorderLayout.CENTER);
         panelPrincipal.add(panelSouth, BorderLayout.SOUTH);
 
         this.add(panelPrincipal);
+    }
+    
+    /*
+     *Configura el Split
+     *permitiendo un limite de desplazamiento
+     */
+    private void initSplitPane()
+    {
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panelWest, panelCenter);
+        splitPane.setContinuousLayout(true);
+
+        PropertyChangeListener adjustDividerLocation = new PropertyChangeListener()
+        {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt)
+            {
+                int currentLocation = splitPane.getDividerLocation();
+                if (currentLocation < minLeftPanelWidth)
+                {
+                    splitPane.setDividerLocation(minLeftPanelWidth);
+                } else if (currentLocation > maxLeftPanelWidth)
+                {
+                    splitPane.setDividerLocation(maxLeftPanelWidth);
+                }
+            }
+        };
+        
+        splitPane.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, adjustDividerLocation);
     }
 
     /*
@@ -191,8 +230,18 @@ public class VentanaPrincipal extends JFrame
     private void initPanelWest()
     {
         panelWest = new JPanel();
-        panelWest.setBackground(Color.WHITE);
-        panelWest.add(new JLabel("fdssdf sdsdffdssdf sdsdfsdf"));
+//        panelWest.setLayout(new BoxLayout(panelWest, BoxLayout.X_AXIS));
+//        panelWest.setBackground(Color.GREEN);
+        panelWest.setLayout(new BorderLayout());
+        DefaultMutableTreeNode rootNodo = new DefaultMutableTreeNode("Mi Equipo      ");
+        Ctrl.cargarArbolCarpetas(rootNodo, Var.getMultilista().getRaiz());
+        JTree tree = new JTree(rootNodo);
+        DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) tree.getCellRenderer();
+        renderer.setOpenIcon(new ImageIcon("src/vista/imagenes/agregar-carpeta1.png")); // Icono para carpetas cerradas
+        renderer.setClosedIcon(new ImageIcon("src/vista/imagenes/agregar-carpeta1.png")); // Icono para carpetas cerradas
+        renderer.setLeafIcon(new ImageIcon("src/vista/imagenes/agregar-carpeta1.png")); // Icono para carpetas cerradas
+        JScrollPane scrollArbolDirectorio = new JScrollPane(tree);
+        panelWest.add(scrollArbolDirectorio, BorderLayout.CENTER);
     }
 
     /*
@@ -325,7 +374,7 @@ public class VentanaPrincipal extends JFrame
             @Override
             public void mouseMoved(MouseEvent e)
             {
-                System.out.println(tabla.isPopupMenuActive());
+//                System.out.println(tabla.isPopupMenuActive());
                 if (!tabla.isPopupMenuActive())
                 {
 
@@ -478,7 +527,7 @@ public class VentanaPrincipal extends JFrame
             }
         });
 
-        panelCenter.add(panelNorth, BorderLayout.NORTH);
+//        panelCenter.add(panelNorth, BorderLayout.NORTH);
         panelCenter.add(scrollPane, BorderLayout.CENTER);
     }
 

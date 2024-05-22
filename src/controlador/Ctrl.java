@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JButton;
 import javax.swing.JTextField;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
  *
@@ -172,5 +173,29 @@ public class Ctrl
         String[] directorios = new String[listaDirectorios.size()];
         directorios = listaDirectorios.toArray(directorios);
         return directorios;
+    }
+    
+    public static void cargarArbolCarpetas(DefaultMutableTreeNode nodoRaiz, Nodo nodoPadre)
+    {
+        if (nodoPadre != null)
+        {
+            Nodo aux = nodoPadre;
+            do
+            {
+                if (aux.getObjecto() instanceof Archivo x)
+                {
+                    if (x.getTipo() == 'C')
+                    {
+                        //Crear un nodo para representar la carpeta
+                        DefaultMutableTreeNode nodoHijo = new DefaultMutableTreeNode(aux.getEtiqueta());
+                        // Agregar el nodo al árbol
+                        nodoRaiz.add(nodoHijo);
+                        // Recursivamente agregar los subniveles de la carpeta
+                        cargarArbolCarpetas(nodoHijo, aux.getAbajo());
+                    }
+                }
+                aux = aux.getSiguiente();
+            } while (aux != nodoPadre);
+        }
     }
 }
