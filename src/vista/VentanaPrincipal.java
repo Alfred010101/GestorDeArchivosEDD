@@ -17,6 +17,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -260,6 +261,7 @@ public class VentanaPrincipal extends JFrame
             {
                 if (e.isPopupTrigger())
                 {
+                    tabla.setPopupMenuActive(true);
                     mostrarMenuEmergente(e);
                 }
             }
@@ -269,6 +271,7 @@ public class VentanaPrincipal extends JFrame
             {
                 if (e.isPopupTrigger())
                 {
+                    tabla.setPopupMenuActive(false);
                     mostrarMenuEmergente(e);
                 }
             }
@@ -303,6 +306,34 @@ public class VentanaPrincipal extends JFrame
                             ruta.setText(ruta.getText() + directorioSeleccionado + "/");
                             model.actualizarTabla(Ctrl.cargarDirectorio(seleccionado.getAbajo()));
                         }
+                    }
+                }
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e)
+            {
+                tabla.setHoveredRow(-1);
+
+                repaint();
+
+            }
+        });
+
+        tabla.addMouseMotionListener(new MouseMotionAdapter()
+        {
+            @Override
+            public void mouseMoved(MouseEvent e)
+            {
+                System.out.println(tabla.isPopupMenuActive());
+                if (!tabla.isPopupMenuActive())
+                {
+
+                    int row = tabla.rowAtPoint(e.getPoint());
+                    if (row != tabla.getHoveredRow())
+                    {
+                        tabla.setHoveredRow(row);
+                        repaint();
                     }
                 }
             }

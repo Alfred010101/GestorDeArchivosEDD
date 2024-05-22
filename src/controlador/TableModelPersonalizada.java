@@ -92,5 +92,4 @@ public class TableModelPersonalizada extends AbstractTableModel
         }
         fireTableDataChanged();
     }
-
 }
