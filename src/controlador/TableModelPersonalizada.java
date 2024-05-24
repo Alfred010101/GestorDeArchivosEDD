@@ -44,7 +44,7 @@ public class TableModelPersonalizada extends AbstractTableModel
         switch (columnIndex)
         {
             case 0:
-                return (file.getTipo() == 'A') ? new ImageIcon(pathImagenes + "agregar-archivo1.png") : new ImageIcon(pathImagenes + "agregar-carpeta1.png");
+                return (file.getTipo() == 'A') ? new ImageIcon(pathImagenes + "nuevo-documento1.png") : new ImageIcon(pathImagenes + "carpeta1.png");
             case 1:
                 return file.getNombre() + ((file.getTipo() == 'A') ? file.getExtension() : "");
             case 2:

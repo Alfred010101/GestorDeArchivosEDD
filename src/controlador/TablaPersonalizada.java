@@ -106,7 +106,7 @@ public class TablaPersonalizada extends JTable
 class NoFocusBorderTableCellRenderer extends DefaultTableCellRenderer
 {
     private static final Border NO_FOCUS_BORDER = new EmptyBorder(1, 1, 1, 1);
-    private static final Color COLOR_A = new Color(220, 220, 220); // Color claro
+    private static final Color COLOR_A = new Color(240, 240, 240); // Color claro
     private static final Color COLOR_B = new Color(255, 255, 255); // Color blanco
     private static final Color HOVER_COLOR = new Color(189, 215, 238); // Color al pasar el mouse
     private final TablaPersonalizada table;
