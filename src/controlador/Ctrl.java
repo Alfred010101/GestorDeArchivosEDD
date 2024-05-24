@@ -48,11 +48,11 @@ public class Ctrl
      */
     public static String[] validarNombre(String nombreArch, char tipo)
     {
-        String regexArchivo = "^[a-zA-Z0-9ñÑ][a-zA-Z][a-zA-Z0-9ñÑ_\\-() ]*\\.[a-z]+$";
+        String regexArchivo = "^[a-zA-Z][a-zA-Z0-9ñÑ_\\-() ]*\\.[a-z]+$";
         Pattern patternArchivo = Pattern.compile(regexArchivo);
         Matcher matcherArchivo = patternArchivo.matcher(nombreArch);
 
-        String regexCarpeta = "^[a-zA-Z0-9ñÑ][a-zA-Z0-9ñÑ_\\-() ]+$";
+        String regexCarpeta = "^[a-zA-Z][a-zA-Z0-9ñÑ_\\-() ]*$";
         Pattern patternCarpeta = Pattern.compile(regexCarpeta);
         Matcher matcherCarpeta = patternCarpeta.matcher(nombreArch);
 

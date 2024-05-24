@@ -18,6 +18,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -30,6 +32,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -198,11 +201,11 @@ public class VentanaPrincipal extends JFrame
         eliminarBusqueda.setToolTipText("Quitar busqueda");
         eliminarBusqueda.setBackground(null);
 
-        ruta = new JTextFieldEdit(45, "");
-        busca = new JTextFieldEdit(15, "Buscar Archivo");
-//        ruta.setText("");
-//        ruta.setEditable(false);
+        ruta = new JTextFieldEdit(45, "", true);
+        busca = new JTextFieldEdit(15, "Buscar Archivo", false);
+        ruta.setText("");
 
+//        ruta.setEditable(false);
         dirInicio.addMouseListener(new MouseAdapter()
         {
             @Override
@@ -234,7 +237,16 @@ public class VentanaPrincipal extends JFrame
             @Override
             public void mouseClicked(MouseEvent evt)
             {
-                new VentanaNuevo(VentanaPrincipal.this, "Nueva Carpeta", 'C', model, ruta.getText()).setVisible(true);
+                if (!Var.rutaActual.isBlank())
+                {
+                    model.actualizarTabla(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
+                    Var.rutaActual = "";
+                    ruta.setText(Var.rutaActual);
+                }else
+                {
+                    System.out.println("no fue");
+                }
+
             }
         });
 
@@ -267,7 +279,7 @@ public class VentanaPrincipal extends JFrame
             @Override
             public void mouseClicked(MouseEvent evt)
             {
-                new VentanaNuevo(VentanaPrincipal.this, "Nueva Carpeta", 'C', model, ruta.getText()).setVisible(true);
+                new VentanaNuevo(VentanaPrincipal.this, "Nueva Carpeta", 'C', model).setVisible(true);
             }
         });
 
@@ -300,7 +312,41 @@ public class VentanaPrincipal extends JFrame
             @Override
             public void mouseClicked(MouseEvent evt)
             {
-                new VentanaNuevo(VentanaPrincipal.this, "Nuevo Archivo", 'A', model, ruta.getText()).setVisible(true);
+                new VentanaNuevo(VentanaPrincipal.this, "Nuevo Archivo", 'A', model).setVisible(true);
+            }
+        });
+
+        ruta.addKeyListener(new KeyAdapter()
+        {
+            @Override
+            public void keyPressed(KeyEvent e)
+            {
+                if (!ruta.getText().isEmpty())
+                {
+                    if (e.getKeyChar() == '\n')
+                    {
+                        String[] arr = Ctrl.splitPath(ruta.getText().trim());
+                        if (arr.length > 0)
+                        {
+                            Nodo directorioIr = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, arr, arr[arr.length - 1]);
+                            if (directorioIr != null)
+                            {
+                                if (directorioIr.getObjecto() instanceof Archivo x)
+                                {
+                                    if (x.getTipo() == 'C')
+                                    {
+                                        model.actualizarTabla(Ctrl.cargarDirectorio(directorioIr.getAbajo()));
+                                        Var.rutaActual = x.getRuta() + x.getNombre() + "/";
+                                        ruta.setText(Var.rutaActual);
+                                    }
+                                }
+                            } else
+                            {
+                                JOptionPane.showMessageDialog(VentanaPrincipal.this, "La ruta especificada no existe.", "Error", JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
+                    }
+                }
             }
         });
 
@@ -333,9 +379,9 @@ public class VentanaPrincipal extends JFrame
             @Override
             public void mouseClicked(MouseEvent evt)
             {
-                if (!ruta.getText().isBlank())
+                if (!Var.rutaActual.isBlank())
                 {
-                    String[] arr = Ctrl.splitPath(ruta.getText());
+                    String[] arr = Ctrl.splitPath(Var.rutaActual);
                     if (arr.length > 0)
                     {
                         Nodo directorioIr = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, arr, arr[arr.length - 1]);
@@ -343,7 +389,8 @@ public class VentanaPrincipal extends JFrame
                         model.actualizarTabla(Ctrl.cargarDirectorio(directorioIr));
                         if (directorioIr.getObjecto() instanceof Archivo x)
                         {
-                            ruta.setText(x.getRuta());
+                            Var.rutaActual = x.getRuta();
+                            ruta.setText(Var.rutaActual);
                         }
                     }
                 }
@@ -432,18 +479,23 @@ public class VentanaPrincipal extends JFrame
 //        renderer.setLeafIcon(new ImageIcon("src/vista/imagenes/carpeta1.png")); 
 
         TreeCellRendererEdit render1 = new TreeCellRendererEdit();
-        treeDirectorios.setCellRenderer(render1);
-        
-        treeDirectorios.addMouseMotionListener(new MouseAdapter() {
+        treeFavoritos.setCellRenderer(render1);
+        TreeCellRendererEdit render2 = new TreeCellRendererEdit();
+        treeDirectorios.setCellRenderer(render2);
+
+        treeDirectorios.addMouseMotionListener(new MouseAdapter()
+        {
             @Override
-            public void mouseMoved(MouseEvent e) {
+            public void mouseMoved(MouseEvent e)
+            {
                 TreePath path = treeDirectorios.getPathForLocation(e.getX(), e.getY());
-                if (path != null) {
+                if (path != null)
+                {
                     treeDirectorios.setSelectionPath(path);
                 }
             }
         });
-            
+
         scrollArbolDirectorio = new JScrollPane();
         scrollArbolFavorios = new JScrollPane();
         scrollArbolFavorios.setViewportView(treeFavoritos);
@@ -557,12 +609,13 @@ public class VentanaPrincipal extends JFrame
                 if (e.getClickCount() == 2)
                 {
                     String directorioSeleccionado = tabla.getValueAt(tabla.getSelectedRow(), 1).toString();
-                    Nodo seleccionado = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, Ctrl.splitPath(ruta.getText() + directorioSeleccionado), directorioSeleccionado);
+                    Nodo seleccionado = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, Ctrl.splitPath(Var.rutaActual + directorioSeleccionado), directorioSeleccionado);
                     if (seleccionado != null && seleccionado.getObjecto() instanceof Archivo x)
                     {
                         if (x.getTipo() == 'C')
                         {
-                            ruta.setText(ruta.getText() + directorioSeleccionado + "/");
+                            Var.rutaActual += directorioSeleccionado + "/";
+                            ruta.setText(Var.rutaActual);
                             model.actualizarTabla(Ctrl.cargarDirectorio(seleccionado.getAbajo()));
                         }
                     }
@@ -669,7 +722,7 @@ public class VentanaPrincipal extends JFrame
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                new VentanaNuevo(VentanaPrincipal.this, "Nueva Carpeta", 'C', model, ruta.getText()).setVisible(true);
+                new VentanaNuevo(VentanaPrincipal.this, "Nueva Carpeta", 'C', model).setVisible(true);
             }
         });
 
@@ -678,7 +731,7 @@ public class VentanaPrincipal extends JFrame
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                new VentanaNuevo(VentanaPrincipal.this, "Nuevo Archivo", 'A', model, ruta.getText()).setVisible(true);
+                new VentanaNuevo(VentanaPrincipal.this, "Nuevo Archivo", 'A', model).setVisible(true);
             }
         });
 
@@ -748,6 +801,6 @@ public class VentanaPrincipal extends JFrame
     {
         panelSouth = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         panelSouth.setBackground(Color.WHITE);
-        panelSouth.add(Var.getContador());
+        panelSouth.add(Var.contador);
     }
 }

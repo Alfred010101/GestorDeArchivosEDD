@@ -11,7 +11,9 @@ import javax.swing.JLabel;
 public class Var
 {
     private static Multilista multilista = new Multilista();
-    private static JLabel contador = new JLabel("Directorio vacio        ");
+    public static JLabel contador = new JLabel("Directorio vacio        ");
+    public static String rutaActual = "";
+    
     /**
      * @return the multilista
      */
@@ -27,20 +29,4 @@ public class Var
     {
         multilista = aMultilista;
     }    
-
-    /**
-     * @return the contador
-     */
-    public static JLabel getContador()
-    {
-        return contador;
-    }
-
-    /**
-     * @param aContador the contador to set
-     */
-    public static void setContador(JLabel aContador)
-    {
-        contador = aContador;
-    }
 }

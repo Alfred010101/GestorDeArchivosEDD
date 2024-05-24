@@ -16,12 +16,16 @@ import javax.swing.JTextField;
 
 import controlador.*;
 import static controlador.Ctrl.splitPath;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 
@@ -36,22 +40,23 @@ public class VentanaNuevo extends JDialog
     private JPanel panel;
     private GridBagConstraints gbConstraints;
     private JLabel icono;
-    private JTextField nombre;
-    private JTextField peso;
-    private JTextField ruta;
-    private JTextField autor;
+    private JTextFieldEdit nombre;
+    private JTextFieldEdit peso;
+    private JTextFieldEdit ruta;
+    private JTextFieldEdit autor;
+    private JButton crear;
     private final char tipo;
-    private final String dir;
+//    private final String dir;
     private final TableModelPersonalizada model;
     private final String pathImagenes = "src/vista/imagenes/";
 
-    public VentanaNuevo(JFrame frame, String titulo, char tipo, TableModelPersonalizada model, String dir)
+    public VentanaNuevo(JFrame frame, String titulo, char tipo, TableModelPersonalizada model)
     {
         super(frame, titulo, true);
         this.model = model;
         this.tipo = tipo;
-        this.dir = dir;
-        this.setSize(450, 320);
+//        this.dir = dir;
+        this.setSize(400, 280);
         this.setLocationRelativeTo(frame);
         this.setResizable(false);
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -63,13 +68,14 @@ public class VentanaNuevo extends JDialog
     {
         principal = new JPanel();
         principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS));
-
+        principal.setBackground(Color.WHITE);
         panel = new JPanel();
         JPanel panelIcono = new JPanel();
         JPanel panelForm = new JPanel();
         JPanel panelBoton = new JPanel();
 
         panelIcono.setBackground(Color.WHITE);
+        panelIcono.setLayout(new BoxLayout(panelIcono, BoxLayout.X_AXIS));
         panelForm.setBackground(Color.WHITE);
 
         panel.setBackground(Color.WHITE);
@@ -77,17 +83,19 @@ public class VentanaNuevo extends JDialog
 
         panelBoton.setBackground(Color.WHITE);
 
-        nombre = new JTextField(10);
-        peso = new JTextField(5);
-        ruta = new JTextField("C:/" + dir, 25);
-        autor = new JTextField(System.getProperty("user.name"), 10);
-        ruta.setEditable(false);
-        autor.setEditable(false);
+        nombre = new JTextFieldEdit(20, "", false);
+        peso = new JTextFieldEdit(20, "", false);
+        ruta = new JTextFieldEdit(20, "C:/" + Var.rutaActual, false);
+        autor = new JTextFieldEdit(20, System.getProperty("user.name"), false);
+        ruta.setEnabled(false);
+        autor.setEnabled(false);
+        crear = new JButton("Crear");
+        panelBoton.add(crear);
 
         gbConstraints = new GridBagConstraints();
         if (tipo == 'A')
         {
-            icono = new JLabel(new ImageIcon(pathImagenes + "expediente2.png"));
+            icono = new JLabel(new ImageIcon(pathImagenes + "nuevo-documento2.png"));
             panelIcono.add(icono);//this.addComponent(icono, 0, 1, 1, 1, GridBagConstraints.CENTER);
 
             this.addComponent(new JLabel("Nombre : "), 1, 0, 1, 1, GridBagConstraints.EAST);
@@ -95,7 +103,7 @@ public class VentanaNuevo extends JDialog
             this.addComponent(peso, 2, 1, 1, 1, GridBagConstraints.WEST);
         } else
         {
-            icono = new JLabel(new ImageIcon(pathImagenes + "carpeta_vacia2.png"));
+            icono = new JLabel(new ImageIcon(pathImagenes + "carpeta-vacia2.png"));
             panelIcono.add(icono);
             this.addComponent(new JLabel("Nombre : "), 1, 0, 1, 1, GridBagConstraints.EAST);
         }
@@ -111,15 +119,15 @@ public class VentanaNuevo extends JDialog
             @Override
             public void keyPressed(KeyEvent e)
             {
-                if (tipo == 'A')
+                if (!nombre.getText().isEmpty())
                 {
-                    if (!nombre.getText().isEmpty())
+                    if (tipo == 'A')
                     {
                         Ctrl.enter(e, peso);
+                    } else
+                    {
+                        enterKeyPressed(e.getKeyChar());
                     }
-                } else
-                {
-                    enterKeyPressed(e.getKeyChar());
                 }
             }
         });
@@ -129,13 +137,35 @@ public class VentanaNuevo extends JDialog
             @Override
             public void keyPressed(KeyEvent e)
             {
+                if (!peso.getText().isEmpty())
+                {
+                    enterKeyPressed(e.getKeyChar());
+                }
+            }
+        });
+
+        crear.addKeyListener(new KeyAdapter()
+        {
+            @Override
+            public void keyPressed(KeyEvent e)
+            {
                 enterKeyPressed(e.getKeyChar());
+            }
+        });
+        
+        crear.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                crear();
             }
         });
 
         panelForm.add(panel);
         principal.add(panelIcono);
         principal.add(panelForm);
+        principal.add(panelBoton);
         this.add(principal);
     }
 
@@ -160,49 +190,62 @@ public class VentanaNuevo extends JDialog
 
     private void crear()
     {
-        if (!nombre.getText().trim().isBlank() && (tipo == 'C' || (tipo == 'A' && !peso.getText().isBlank())))
+        String nombreInput = nombre.getText().trim();
+        String pesoInput = peso.getText().trim();
+        
+        if (!nombreInput.isBlank() && (tipo == 'C' || (tipo == 'A' && !pesoInput.isBlank())))
         {
-            String[] nombreExtencion = Ctrl.validarNombre(nombre.getText().trim(), tipo);
+            String[] nombreExtencion = Ctrl.validarNombre(nombreInput, tipo);
             if (nombreExtencion != null)
             {
-                int tamanio = (tipo == 'A') ? Ctrl.esNumeroValido(peso.getText().trim()) : 0;
+                int tamanio = (tipo == 'A') ? Ctrl.esNumeroValido(pesoInput) : 0;
                 if (tamanio > 0 || tipo == 'C')
                 {
-                    boolean estado = Ctrl.crear(nombreExtencion[0], nombreExtencion[1], autor.getText(), tipo, tamanio, dir);
+                    //pendiente este bloque
+                    boolean estado = Ctrl.crear(nombreExtencion[0], nombreExtencion[1], autor.getText(), tipo, tamanio, Var.rutaActual);
                     boolean guardado = ManipulacionArchivos.guardar(Var.getMultilista(), "datos.dat");
                     if (estado && guardado)
                     {
-                        String[]arr = splitPath(dir);
+                        String[] arr = splitPath(Var.rutaActual);
                         if (arr.length > 0)
                         {
-                            Nodo dirActual = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, arr, arr[arr.length -1]);
-                            model.actualizarTabla(Ctrl.cargarDirectorio(dirActual.getAbajo()));                            
-                        }else
+                            Nodo dirActual = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, arr, arr[arr.length - 1]);
+                            model.actualizarTabla(Ctrl.cargarDirectorio(dirActual.getAbajo()));
+                        } else
                         {
                             model.actualizarTabla(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
-                        }             
+                        }
                         VentanaNuevo.this.dispose();
                     } else
                     {
-                        System.out.println("Error al crear el archivo");
+                        JOptionPane.showMessageDialog(this, "Error al crear el archivo", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 } else
                 {
-                    System.out.println("El tamaño no es valido");
+                    JOptionPane.showMessageDialog(this, "El tamaño no es valido.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                    peso.requestFocus();
                 }
             } else
             {
-                System.out.println("nombre incorrecto");
+                JOptionPane.showMessageDialog(this, "El nombre no contiene un formato valido.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                nombre.requestFocus();
             }
         } else
         {
-            System.out.println("Hay campos vacios");
+            JOptionPane.showMessageDialog(this, "Hay campos vacios.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            if (nombre.getText().trim().isBlank())
+            {
+                nombre.requestFocus();
+            }else
+            {
+                peso.requestFocus();
+            }
         }
     }
 
     /*
       Cerrar la ventana presionando ESC
-    */
+     */
     private void addEscapeListener()
     {
         KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);

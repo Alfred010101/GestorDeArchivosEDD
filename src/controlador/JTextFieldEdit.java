@@ -20,16 +20,18 @@ public class JTextFieldEdit extends JTextField
 
     private Shape shape;
     private Color borderColor = Color.GRAY; 
-    private final String texto;
+//    private final String texto;
+//    private final boolean txtEstatico;
     
-    public JTextFieldEdit(int size, String texto)
+    public JTextFieldEdit(int size, String texto, boolean txtEstatico)
     {
         super(size);
-        this.texto = texto;
+//        this.texto = texto;
+//        this.txtEstatico = txtEstatico;
         setText(texto);
         setOpaque(false);                                                           // Hacer el JTextField transparente para poder dibujar el borde redondeado
         setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));  // Añadir un pequeño margen interno
-
+        setBackground(new Color(245, 245, 245));
         //Cambiar el borde y fondo cuando el JTextField obtiene el foco
         addFocusListener(new FocusAdapter()
         {
@@ -53,6 +55,10 @@ public class JTextFieldEdit extends JTextField
                 if (getText().trim().isBlank())
                 {
                     setText(texto);
+                }
+                if (txtEstatico )
+                {
+                    setText(Var.rutaActual);
                 }
                 repaint();
             }

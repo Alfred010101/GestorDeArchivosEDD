@@ -85,10 +85,10 @@ public class TableModelPersonalizada extends AbstractTableModel
         files.addAll(nuevosArchivos);
         if (!nuevosArchivos.isEmpty())
         {
-            Var.getContador().setText(nuevosArchivos.size() + " elementos econtrados        ");
+            Var.contador.setText(nuevosArchivos.size() + " elementos econtrados        ");
         }else
         {
-            Var.getContador().setText("Directorio vacio        ");
+            Var.contador.setText("Directorio vacio        ");
         }
         fireTableDataChanged();
     }
