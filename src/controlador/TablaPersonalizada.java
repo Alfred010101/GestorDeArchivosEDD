@@ -72,7 +72,9 @@ public class TablaPersonalizada extends JTable
 
         JTableHeader header = getTableHeader();
         header.setReorderingAllowed(false);
-
+        header.setBackground(Color.DARK_GRAY);
+        header.setForeground(Color.WHITE);
+        
         // Permitir selección de fila única
         setRowSelectionAllowed(true);
         setColumnSelectionAllowed(false);

@@ -3,6 +3,7 @@ package vista;
 import clases.Archivo;
 import clases.Nodo;
 import controlador.Ctrl;
+import controlador.JTextFieldEdit;
 import controlador.ManipulacionArchivos;
 import controlador.TablaPersonalizada;
 import controlador.TableModelPersonalizada;
@@ -20,6 +21,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -51,8 +53,8 @@ public class VentanaPrincipal extends JFrame
     private JPanel panelSouth;
     private JLabel nuevaCarpeta;
     private JLabel nuevoArchivo;
-    private JTextField ruta;
-    private JTextField busca;
+    private JTextFieldEdit ruta;
+    private JTextFieldEdit busca;
     private JLabel dirAnterior;
     private TableModelPersonalizada model;
     private JSplitPane splitPane;
@@ -127,31 +129,37 @@ public class VentanaPrincipal extends JFrame
     private void initPanelNorth()
     {
         panelNorth = new JPanel();
+//        panelNorth.setLayout(new BoxLayout(panelNorth, BoxLayout.X_AXIS));
         nuevaCarpeta = new JLabel(new ImageIcon(pathImagenes + "agregar-carpeta1.png"));
         nuevaCarpeta.setBorder(new EmptyBorder(0, 0, 0, 0));
         nuevoArchivo = new JLabel(new ImageIcon(pathImagenes + "agregar-archivo1.png"));
         nuevoArchivo.setBorder(new EmptyBorder(0, 0, 0, 0));
         dirAnterior = new JLabel(new ImageIcon(pathImagenes + "arriba2.png"));
         dirAnterior.setBorder(new EmptyBorder(0, 0, 0, 0));
-
-        ruta = new JTextField(45);
-        busca = new JTextField(15);
+        
+        nuevaCarpeta.setOpaque(true); 
+        nuevaCarpeta.setBorder(new EmptyBorder(3,3,3,3)); 
+        nuevoArchivo.setOpaque(true); 
+        nuevoArchivo.setBorder(new EmptyBorder(3,3,3,3)); 
+        dirAnterior.setOpaque(true); 
+        dirAnterior.setBorder(new EmptyBorder(3,3,3,3)); 
+        
+        ruta = new JTextFieldEdit(45, "");
+        busca = new JTextFieldEdit(15, "Buscar Archivo");
 
         ruta.setText("");
-        ruta.setEditable(false);
+//        ruta.setEditable(false);
 
         nuevaCarpeta.addMouseListener(new MouseAdapter()
         {
             @Override
-            public void mouseExited(MouseEvent evt)
-            {
-                //iconos[1].setIcon(new ImageIcon(pathImagenes + nomIcon[1]));
+            public void mouseEntered(MouseEvent e) {
+                nuevaCarpeta.setBackground(new Color(176, 196, 222)); 
             }
 
             @Override
-            public void mouseEntered(MouseEvent evt)
-            {
-                //iconos[1].setIcon(new ImageIcon(pathImagenes + "guardar_Hover.png"));
+            public void mouseExited(MouseEvent e) {
+                nuevaCarpeta.setBackground(null); 
             }
 
             @Override
@@ -164,15 +172,13 @@ public class VentanaPrincipal extends JFrame
         nuevoArchivo.addMouseListener(new MouseAdapter()
         {
             @Override
-            public void mouseExited(MouseEvent evt)
-            {
-                //iconos[1].setIcon(new ImageIcon(pathImagenes + nomIcon[1]));
+            public void mouseEntered(MouseEvent e) {
+                nuevoArchivo.setBackground(new Color(176, 196, 222)); 
             }
 
             @Override
-            public void mouseEntered(MouseEvent evt)
-            {
-                //iconos[1].setIcon(new ImageIcon(pathImagenes + "guardar_Hover.png"));
+            public void mouseExited(MouseEvent e) {
+                nuevoArchivo.setBackground(null); 
             }
 
             @Override
@@ -185,15 +191,13 @@ public class VentanaPrincipal extends JFrame
         dirAnterior.addMouseListener(new MouseAdapter()
         {
             @Override
-            public void mouseExited(MouseEvent evt)
-            {
-                //iconos[1].setIcon(new ImageIcon(pathImagenes + nomIcon[1]));
+            public void mouseEntered(MouseEvent e) {
+                dirAnterior.setBackground(new Color(176, 196, 222)); 
             }
 
             @Override
-            public void mouseEntered(MouseEvent evt)
-            {
-                //iconos[1].setIcon(new ImageIcon(pathImagenes + "guardar_Hover.png"));
+            public void mouseExited(MouseEvent e) {
+                dirAnterior.setBackground(null); 
             }
 
             @Override
@@ -261,9 +265,8 @@ public class VentanaPrincipal extends JFrame
         model.actualizarTabla(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
         TablaPersonalizada tabla = new TablaPersonalizada(model);
         //Asigna colores a la tabla
-        JTableHeader header = tabla.getTableHeader();
-        header.setBackground(Color.DARK_GRAY);
-        header.setForeground(Color.WHITE);
+//        JTableHeader header = tabla.getTableHeader();
+        
         JScrollPane scrollPane = new JScrollPane(tabla);
         JViewport viewport = scrollPane.getViewport();
         viewport.setBackground(Color.WHITE);
