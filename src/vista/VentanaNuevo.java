@@ -1,6 +1,5 @@
 package vista;
 
-import clases.Nodo;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
@@ -12,10 +11,8 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import controlador.*;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -27,7 +24,6 @@ import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
-import javax.swing.tree.DefaultTreeModel;
 
 /**
  *
@@ -211,22 +207,7 @@ public class VentanaNuevo extends JDialog
                     boolean guardado = ManipulacionArchivos.guardar(Var.getMultilista(), "datos.dat");
                     if (Var.banderaInsersionMultilista && estado && guardado)
                     {
-                        String[] arr = Ctrl.splitPath(Var.rutaActual);
-                        if (arr.length > 0)
-                        {
-                            Nodo dirActual = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, arr, arr[arr.length - 1]);
-                            VentanaPrincipal.modelTabla.actualizarTabla(Ctrl.cargarDirectorio(dirActual.getAbajo()));
-                        } else
-                        {
-                            VentanaPrincipal.modelTabla.actualizarTabla(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
-                        }
-                        if (tipo == 'C')
-                        {
-                            VentanaPrincipal.rootNodoDirectorios.removeAllChildren();
-                            Ctrl.cargarArbolCarpetas(VentanaPrincipal.rootNodoDirectorios, Var.getMultilista().getRaiz());
-                            ((DefaultTreeModel)VentanaPrincipal.treeDirectorios.getModel()).reload(VentanaPrincipal.rootNodoDirectorios);                          
-                        }
-                        Var.banderaInsersionMultilista = false;
+                        Ctrl.actualizarRegistrosInterfaz(Ctrl.splitPath(Var.rutaActual), nombreInput, false);
                         VentanaNuevo.this.dispose();
                     }
                 } else

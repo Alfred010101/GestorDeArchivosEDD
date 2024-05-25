@@ -821,24 +821,7 @@ public class VentanaPrincipal extends JFrame
 
             if (Var.banderaEliminarMultilista && guardado)
             {
-                Ctrl.actualizarRegistros(rutaAct, nom);
-//                if (rutaAct.length > 0)
-//                {
-//                    Nodo directorio = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, rutaAct, rutaAct[rutaAct.length - 1]);
-//                    modelTabla.actualizarTabla(Ctrl.cargarDirectorio(directorio.getAbajo()));
-//                } else
-//                {
-//                    modelTabla.actualizarTabla(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
-//                }
-//                if (!nom.contains("."))
-//                {
-//                    rootNodoDirectorios.removeAllChildren();
-//                    Ctrl.cargarArbolCarpetas(rootNodoDirectorios, Var.getMultilista().getRaiz());
-//                    ((DefaultTreeModel) treeDirectorios.getModel()).reload(rootNodoDirectorios);
-//                }
-//                Var.setTablaHash(Ctrl.cargarTablaHash(Var.getMultilista()));
-//                Var.getTablaHash().balanciar();
-//                Var.banderaEliminarMultilista = false;
+                Ctrl.actualizarRegistrosInterfaz(rutaAct, nom, true);
             }
         }
     }

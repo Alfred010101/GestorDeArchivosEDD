@@ -5,7 +5,6 @@ import clases.Nodo;
 import controlador.Ctrl;
 import controlador.JTextFieldEdit;
 import controlador.ManipulacionArchivos;
-import controlador.TableModelPersonalizada;
 import controlador.Var;
 import java.awt.Color;
 import java.awt.Component;
@@ -27,7 +26,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
-import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 /**
@@ -205,7 +203,7 @@ public class VentanaPropiedades extends JDialog
                                 boolean guardado = ManipulacionArchivos.guardar(Var.getMultilista(), "datos.dat");
                                 if (Var.banderaInsersionMultilista && estado && guardado)
                                 {
-                                    Ctrl.actualizarRegistros(Ctrl.splitPath(Var.rutaActual), etq);
+                                    Ctrl.actualizarRegistrosInterfaz(Ctrl.splitPath(Var.rutaActual), etq, true);
                                     VentanaPropiedades.this.dispose();
                                 }
                             }
@@ -218,29 +216,6 @@ public class VentanaPropiedades extends JDialog
                     {
                         VentanaPropiedades.this.dispose();
                     }
-
-//                    boolean estado = Ctrl.crear(nombreExtencion[0], nombreExtencion[1], autor.getText(), tipo, tamanio, Var.rutaActual);
-//                    boolean guardado = ManipulacionArchivos.guardar(Var.getMultilista(), "datos.dat");
-//                    if (Var.banderaInsersionMultilista && estado && guardado)
-//                    {
-//                        String[] arr = splitPath(Var.rutaActual);
-//                        if (arr.length > 0)
-//                        {
-//                            Nodo dirActual = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, arr, arr[arr.length - 1]);
-//                            VentanaPrincipal.modelTabla.actualizarTabla(Ctrl.cargarDirectorio(dirActual.getAbajo()));
-//                        } else
-//                        {
-//                            VentanaPrincipal.modelTabla.actualizarTabla(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
-//                        }
-//                        if (tipo == 'C')
-//                        {
-//                            VentanaPrincipal.rootNodoDirectorios.removeAllChildren();
-//                            Ctrl.cargarArbolCarpetas(VentanaPrincipal.rootNodoDirectorios, Var.getMultilista().getRaiz());
-//                            ((DefaultTreeModel)VentanaPrincipal.treeDirectorios.getModel()).reload(VentanaPrincipal.rootNodoDirectorios);                          
-//                        }
-//                        Var.banderaInsersionMultilista = false;
-//                        VentanaNuevo.this.dispose();
-//                    }
                 } else
                 {
                     JOptionPane.showMessageDialog(this, "El tamaño no es valido.", "Advertencia", JOptionPane.WARNING_MESSAGE);

@@ -300,7 +300,7 @@ public class Ctrl
         }
     }
 
-    public static void actualizarRegistros(String[] rutaAct, String nom)
+    public static void actualizarRegistrosInterfaz(String[] rutaAct, String nom, boolean actualizarTablaHash)
     {
         if (rutaAct != null)
         {
@@ -318,10 +318,12 @@ public class Ctrl
                 Ctrl.cargarArbolCarpetas(VentanaPrincipal.rootNodoDirectorios, Var.getMultilista().getRaiz());
                 ((DefaultTreeModel) VentanaPrincipal.treeDirectorios.getModel()).reload(VentanaPrincipal.rootNodoDirectorios);
             }
-            Var.setTablaHash(Ctrl.cargarTablaHash(Var.getMultilista()));
-            Var.getTablaHash().balanciar();
+            if (actualizarTablaHash)
+            {
+                Var.setTablaHash(Ctrl.cargarTablaHash(Var.getMultilista()));
+                Var.getTablaHash().balanciar();
+            }
             Var.banderaEliminarMultilista = false;
-            //pendiente de revison 
             Var.banderaInsersionMultilista = false;
         }
     }
