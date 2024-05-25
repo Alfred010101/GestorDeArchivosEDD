@@ -15,10 +15,11 @@ public class TreeCellRendererEdit extends DefaultTreeCellRenderer
 
     private final Icon rootIcon;
 
-    public TreeCellRendererEdit()
+    public TreeCellRendererEdit(boolean bandera)
     {
         // Cargar el ícono personalizado
-        rootIcon = new ImageIcon("src/vista/imagenes/boton-de-inicio1.png");
+//        rootIcon = new ImageIcon("src/vista/imagenes/image1-2.png");
+        rootIcon = new ImageIcon("src/vista/imagenes/" + ((bandera) ? "alfiler1.png" : "image1-2.png"));
         setOpenIcon(new ImageIcon("src/vista/imagenes/carpeta1.png"));
         setClosedIcon(new ImageIcon("src/vista/imagenes/carpeta1.png"));
         setLeafIcon(new ImageIcon("src/vista/imagenes/carpeta1.png"));

@@ -161,7 +161,7 @@ public class Multilista implements Serializable
             Nodo aux = nodoRaiz;
             do
             {
-                if (aux.getEtiqueta().equals(etq))
+                if (aux.getEtiqueta().equalsIgnoreCase(etq))
                 {
                     return aux;
                 }

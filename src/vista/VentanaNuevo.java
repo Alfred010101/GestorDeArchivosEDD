@@ -15,7 +15,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import controlador.*;
-import static controlador.Ctrl.splitPath;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -212,7 +211,7 @@ public class VentanaNuevo extends JDialog
                     boolean guardado = ManipulacionArchivos.guardar(Var.getMultilista(), "datos.dat");
                     if (Var.banderaInsersionMultilista && estado && guardado)
                     {
-                        String[] arr = splitPath(Var.rutaActual);
+                        String[] arr = Ctrl.splitPath(Var.rutaActual);
                         if (arr.length > 0)
                         {
                             Nodo dirActual = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, arr, arr[arr.length - 1]);

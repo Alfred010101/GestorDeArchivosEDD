@@ -1,6 +1,7 @@
 package controlador;
 
 import clases.Archivo;
+import clases.ListaCircularDoblementeLigada;
 import clases.Multilista;
 import clases.Nodo;
 import clases.NodoArbol;
@@ -15,6 +16,8 @@ import java.util.regex.Pattern;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import vista.VentanaPrincipal;
 
 /**
  *
@@ -34,6 +37,36 @@ public class Ctrl
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             Archivo archivo = new Archivo(nombre, extencion, currentDateTime.format(formatter), autor, tipo, tamaño, ruta);
             Nodo nodo = new <Archivo>Nodo(nombre + ((extencion != null) ? extencion : ""), archivo);
+            Nodo retorno = Var.getMultilista().insertar(Var.getMultilista().getRaiz(), 0, splitPath(ruta + "nuevo"), nodo);
+            Var.getMultilista().setRaiz(retorno);
+            return true;
+        } catch (Exception e)
+        {
+            return false;
+        }
+    }
+    /*
+     * Actualiza un archivo en la multilista
+     */
+    public static boolean actualizar(Nodo porActualizar, String nombre, String extencion, String autor, char tipo, int tamaño, String ruta)
+    {
+        try
+        {
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            Archivo archivo = new Archivo(nombre, extencion, currentDateTime.format(formatter), autor, tipo, tamaño, ruta);
+            Nodo nodo = new <Archivo>Nodo(nombre + ((extencion != null) ? extencion : ""), archivo);
+            if (porActualizar != null && porActualizar.getAbajo() != null)
+            {
+                Nodo aux = porActualizar.getAbajo();
+                do
+                {
+                    aux.setArriba(nodo);
+                    aux = porActualizar.getAbajo().getSiguiente();
+                }while(aux != porActualizar.getAbajo());
+                nodo.setAbajo(aux);
+            }
+            Var.getMultilista().cambiarRuta(nodo, ruta + nombre + "/");
             Nodo retorno = Var.getMultilista().insertar(Var.getMultilista().getRaiz(), 0, splitPath(ruta + "nuevo"), nodo);
             Var.getMultilista().setRaiz(retorno);
             return true;
@@ -255,14 +288,41 @@ public class Ctrl
         if (nodo != null)
         {
             Nodo aux = nodo;
-            do{
+            do
+            {
                 tablaHash.inserta(new NodoArbol(aux.getEtiqueta(), aux));
                 if (aux.getAbajo() != null)
                 {
                     cargarNodosEnTablaHash(aux.getAbajo(), tablaHash);
                 }
                 aux = aux.getSiguiente();
-            }while(aux != nodo);
+            } while (aux != nodo);
+        }
+    }
+
+    public static void actualizarRegistros(String[] rutaAct, String nom)
+    {
+        if (rutaAct != null)
+        {
+            if (rutaAct.length > 0)
+            {
+                Nodo directorio = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, rutaAct, rutaAct[rutaAct.length - 1]);
+                VentanaPrincipal.modelTabla.actualizarTabla(Ctrl.cargarDirectorio(directorio.getAbajo()));
+            } else
+            {
+                VentanaPrincipal.modelTabla.actualizarTabla(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
+            }
+            if (!nom.contains("."))
+            {
+                VentanaPrincipal.rootNodoDirectorios.removeAllChildren();
+                Ctrl.cargarArbolCarpetas(VentanaPrincipal.rootNodoDirectorios, Var.getMultilista().getRaiz());
+                ((DefaultTreeModel) VentanaPrincipal.treeDirectorios.getModel()).reload(VentanaPrincipal.rootNodoDirectorios);
+            }
+            Var.setTablaHash(Ctrl.cargarTablaHash(Var.getMultilista()));
+            Var.getTablaHash().balanciar();
+            Var.banderaEliminarMultilista = false;
+            //pendiente de revison 
+            Var.banderaInsersionMultilista = false;
         }
     }
 }

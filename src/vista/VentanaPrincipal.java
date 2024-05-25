@@ -151,6 +151,7 @@ public class VentanaPrincipal extends JFrame
         splitPaneVertical = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panelWest, panelCenter);
         splitPaneVertical.setContinuousLayout(true);
         splitPaneVertical.setOneTouchExpandable(true);
+        splitPaneVertical.setDividerLocation(150);
         PropertyChangeListener adjustDividerLocation = new PropertyChangeListener()
         {
             @Override
@@ -174,6 +175,7 @@ public class VentanaPrincipal extends JFrame
         splitPaneHorizontal = new JSplitPane(JSplitPane.VERTICAL_SPLIT, panelFavoritos, panelDirectorios);
         splitPaneHorizontal.setContinuousLayout(true);
         splitPaneHorizontal.setOneTouchExpandable(true);
+        splitPaneHorizontal.setDividerLocation(150);
     }
 
     /*
@@ -451,9 +453,9 @@ public class VentanaPrincipal extends JFrame
 //        renderer.setClosedIcon(new ImageIcon("src/vista/imagenes/carpeta1.png")); 
 //        renderer.setLeafIcon(new ImageIcon("src/vista/imagenes/carpeta1.png")); 
 
-        TreeCellRendererEdit render1 = new TreeCellRendererEdit();
+        TreeCellRendererEdit render1 = new TreeCellRendererEdit(true);
         treeFavoritos.setCellRenderer(render1);
-        TreeCellRendererEdit render2 = new TreeCellRendererEdit();
+        TreeCellRendererEdit render2 = new TreeCellRendererEdit(false);
         treeDirectorios.setCellRenderer(render2);
 
         treeDirectorios.addMouseMotionListener(new MouseAdapter()
@@ -713,10 +715,10 @@ public class VentanaPrincipal extends JFrame
             public void actionPerformed(ActionEvent e)
             {
                 String archivoSeleccionado = tabla.getValueAt(tabla.getSelectedRow(), 1).toString();
-                Nodo seleccionado = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, Ctrl.splitPath(ruta.getText() + archivoSeleccionado), archivoSeleccionado);
+                Nodo seleccionado = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, Ctrl.splitPath(Var.rutaActual + archivoSeleccionado), archivoSeleccionado);
                 if (seleccionado != null && seleccionado.getObjecto() instanceof Archivo x)
                 {
-                    new VentanaPropiedades(VentanaPrincipal.this, archivoSeleccionado, x, true, modelTabla).setVisible(true);
+                    new VentanaPropiedades(VentanaPrincipal.this, archivoSeleccionado, x, true).setVisible(true);
                 }
             }
         });
@@ -739,7 +741,7 @@ public class VentanaPrincipal extends JFrame
                 Nodo seleccionado = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, Ctrl.splitPath(ruta.getText() + archivoSeleccionado), archivoSeleccionado);
                 if (seleccionado != null && seleccionado.getObjecto() instanceof Archivo x)
                 {
-                    new VentanaPropiedades(VentanaPrincipal.this, archivoSeleccionado, x, false, null).setVisible(true);
+                    new VentanaPropiedades(VentanaPrincipal.this, archivoSeleccionado, x, false).setVisible(true);
                 }
             }
         });
@@ -819,23 +821,24 @@ public class VentanaPrincipal extends JFrame
 
             if (Var.banderaEliminarMultilista && guardado)
             {
-                if (rutaAct.length > 0)
-                {
-                    Nodo directorio = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, rutaAct, rutaAct[rutaAct.length - 1]);
-                    modelTabla.actualizarTabla(Ctrl.cargarDirectorio(directorio.getAbajo()));
-                } else
-                {
-                    modelTabla.actualizarTabla(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
-                }
-                if (!nom.contains("."))
-                {
-                    rootNodoDirectorios.removeAllChildren();
-                    Ctrl.cargarArbolCarpetas(rootNodoDirectorios, Var.getMultilista().getRaiz());
-                    ((DefaultTreeModel) treeDirectorios.getModel()).reload(rootNodoDirectorios);
-                }
-                Var.setTablaHash(Ctrl.cargarTablaHash(Var.getMultilista()));
-                Var.getTablaHash().balanciar();
-                Var.banderaEliminarMultilista = false;
+                Ctrl.actualizarRegistros(rutaAct, nom);
+//                if (rutaAct.length > 0)
+//                {
+//                    Nodo directorio = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, rutaAct, rutaAct[rutaAct.length - 1]);
+//                    modelTabla.actualizarTabla(Ctrl.cargarDirectorio(directorio.getAbajo()));
+//                } else
+//                {
+//                    modelTabla.actualizarTabla(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
+//                }
+//                if (!nom.contains("."))
+//                {
+//                    rootNodoDirectorios.removeAllChildren();
+//                    Ctrl.cargarArbolCarpetas(rootNodoDirectorios, Var.getMultilista().getRaiz());
+//                    ((DefaultTreeModel) treeDirectorios.getModel()).reload(rootNodoDirectorios);
+//                }
+//                Var.setTablaHash(Ctrl.cargarTablaHash(Var.getMultilista()));
+//                Var.getTablaHash().balanciar();
+//                Var.banderaEliminarMultilista = false;
             }
         }
     }

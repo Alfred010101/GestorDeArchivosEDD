@@ -15,7 +15,7 @@ public class TableModelPersonalizada extends AbstractTableModel
 
     private final String[] columnNames =
     {
-        "Tipo", "Nombre", "Fecha", "Tamaño"
+        "Tipo", "Nombre", "Fecha de Modificación", "Tamaño"
     };
     private final List<Archivo> files;
     final String pathImagenes = "src/vista/imagenes/";
