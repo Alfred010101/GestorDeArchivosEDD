@@ -2,6 +2,7 @@ package vista;
 
 import clases.Archivo;
 import clases.Nodo;
+import clases.TablaHash;
 import controlador.Ctrl;
 import controlador.JTextFieldEdit;
 import controlador.ManipulacionArchivos;
@@ -44,6 +45,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.JTableHeader;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 /**
@@ -58,8 +60,11 @@ public class VentanaPrincipal extends JFrame
     private JPanel panelWest;
     private JPanel panelCenter;
     private JPanel panelSouth;
-    private JPanel panelFavoritos;
-    private JPanel panelArbol;
+
+    /**
+     * Componentes agregados a el panel North manteniendo una barra de
+     * herramientas simple contine la busqueda de archivos
+     */
     private JLabel dirInicio;
     private JLabel nuevaCarpeta;
     private JLabel nuevoArchivo;
@@ -67,18 +72,43 @@ public class VentanaPrincipal extends JFrame
     private JTextFieldEdit busca;
     private JLabel dirAnterior;
     private JLabel eliminarBusqueda;
-    private JScrollPane scrollArbolDirectorio;
+
+    /**
+     * Componentes encargados de mostrar el marcador de favoritos
+     */
+    private JPanel panelFavoritos;
     private JScrollPane scrollArbolFavorios;
+    private JTree treeFavoritos;
     private DefaultMutableTreeNode rootNodoFavoritos;
-    private DefaultMutableTreeNode rootNodoDirectorios;
-    private JTree treeFavoritos = new JTree(rootNodoFavoritos);
-    private JTree treeDirectorios = new JTree(rootNodoDirectorios);
-    private TableModelPersonalizada model;
+
+    /**
+     * Componentes encargados de mostrar el arbol de directorios solo muestra
+     * carperas los componetes estaticos facilitan su manipulacion desde otro
+     * punto del sistema
+     */
+    private JPanel panelDirectorios;
+    private JScrollPane scrollArbolDirectorios;
+    public static JTree treeDirectorios;
+    public static DefaultMutableTreeNode rootNodoDirectorios;
+
+    /**
+     * Splits para mover los panels
+     */
     private JSplitPane splitPaneVertical;
     private JSplitPane splitPaneHorizontal;
-    private final String pathImagenes = "src/vista/imagenes/";
-    private final int minLeftPanelWidth = 0;
-    private final int maxLeftPanelWidth = 200;
+
+    /**
+     * model para la tabla es estatica para facilitar la manipulacion desde otro
+     * punto del sistema
+     */
+    public static TableModelPersonalizada modelTabla;
+
+    /**
+     * Establecen valores parea que el split tenga limite en cuanto al espacio a
+     * ocupar
+     */
+    private final int MIN_LEFT_PANEL = 0;
+    private final int MAX_LEFT_PANEL = 200;
 
     public VentanaPrincipal()
     {
@@ -127,12 +157,12 @@ public class VentanaPrincipal extends JFrame
             public void propertyChange(PropertyChangeEvent evt)
             {
                 int currentLocation = splitPaneVertical.getDividerLocation();
-                if (currentLocation < minLeftPanelWidth)
+                if (currentLocation < MIN_LEFT_PANEL)
                 {
-                    splitPaneVertical.setDividerLocation(minLeftPanelWidth);
-                } else if (currentLocation > maxLeftPanelWidth)
+                    splitPaneVertical.setDividerLocation(MIN_LEFT_PANEL);
+                } else if (currentLocation > MAX_LEFT_PANEL)
                 {
-                    splitPaneVertical.setDividerLocation(maxLeftPanelWidth);
+                    splitPaneVertical.setDividerLocation(MAX_LEFT_PANEL);
                 }
             }
         };
@@ -141,7 +171,7 @@ public class VentanaPrincipal extends JFrame
 
     private void initSplitPaneHorizontal()
     {
-        splitPaneHorizontal = new JSplitPane(JSplitPane.VERTICAL_SPLIT, panelFavoritos, panelArbol);
+        splitPaneHorizontal = new JSplitPane(JSplitPane.VERTICAL_SPLIT, panelFavoritos, panelDirectorios);
         splitPaneHorizontal.setContinuousLayout(true);
         splitPaneHorizontal.setOneTouchExpandable(true);
     }
@@ -154,47 +184,40 @@ public class VentanaPrincipal extends JFrame
     private void initPanelNorth()
     {
         panelNorth = new JPanel();
-//        panelNorth.setBackground(new Color(31, 164, 214));
-//        panelNorth.setBackground(new Color(113, 167, 254));
-//        panelNorth.setBackground(new Color(80, 143, 254));
-//        panelNorth.setBackground(new Color(55, 108, 251));
-//        panelNorth.setBackground(new Color(66, 148, 255));
         panelNorth.setBackground(new Color(220, 220, 220));
         JPanel contenedorIconos = new JPanel();
         contenedorIconos.setLayout(new BoxLayout(contenedorIconos, BoxLayout.X_AXIS));
-//        contenedorIconos.setBackground(new Color(113, 167, 254));
         contenedorIconos.setBackground(new Color(220, 220, 220));
-//        panelNorth.setBorder(new EmptyBorder(3,5,3,5)); 
-//        panelNorth.setLayout(new BoxLayout(panelNorth, BoxLayout.X_AXIS));
-        dirInicio = new JLabel(new ImageIcon(pathImagenes + "boton-de-inicio1.png"));
+
+        dirInicio = new JLabel(new ImageIcon(Var.PATH_IMAGENES + "boton-de-inicio1.png"));
         dirInicio.setOpaque(true);
         dirInicio.setBorder(new EmptyBorder(3, 3, 3, 3));
         dirInicio.setCursor(new Cursor(Cursor.HAND_CURSOR));
         dirInicio.setToolTipText("Ir al directori raiz");
         dirInicio.setBackground(null);
-//        dirInicio.setBorder(new EmptyBorder(0, 0, 0, 0));
-        nuevaCarpeta = new JLabel(new ImageIcon(pathImagenes + "agregar-carpeta1.png"));
+
+        nuevaCarpeta = new JLabel(new ImageIcon(Var.PATH_IMAGENES + "agregar-carpeta1.png"));
         nuevaCarpeta.setOpaque(true);
         nuevaCarpeta.setBorder(new EmptyBorder(3, 3, 3, 3));
         nuevaCarpeta.setCursor(new Cursor(Cursor.HAND_CURSOR));
         nuevaCarpeta.setToolTipText("Nueva Carpeta");
         nuevaCarpeta.setBackground(null);
-//        nuevaCarpeta.setBorder(new EmptyBorder(0, 0, 0, 0));
-        nuevoArchivo = new JLabel(new ImageIcon(pathImagenes + "agregar-archivo1.png"));
+
+        nuevoArchivo = new JLabel(new ImageIcon(Var.PATH_IMAGENES + "agregar-archivo1.png"));
         nuevoArchivo.setOpaque(true);
         nuevoArchivo.setBorder(new EmptyBorder(3, 3, 3, 3));
         nuevoArchivo.setCursor(new Cursor(Cursor.HAND_CURSOR));
         nuevoArchivo.setToolTipText("Nuevo Archivo");
         nuevoArchivo.setBackground(null);
-//        nuevoArchivo.setBorder(new EmptyBorder(0, 0, 0, 0));
-        dirAnterior = new JLabel(new ImageIcon(pathImagenes + "arriba2.png"));
+
+        dirAnterior = new JLabel(new ImageIcon(Var.PATH_IMAGENES + "arriba2.png"));
         dirAnterior.setOpaque(true);
         dirAnterior.setBorder(new EmptyBorder(3, 3, 3, 3));
         dirAnterior.setCursor(new Cursor(Cursor.HAND_CURSOR));
         dirAnterior.setToolTipText("Ir arriba");
         dirAnterior.setBackground(null);
-//        dirAnterior.setBorder(new EmptyBorder(0, 0, 0, 0));
-        eliminarBusqueda = new JLabel(new ImageIcon(pathImagenes + "cancelar1.png"));
+
+        eliminarBusqueda = new JLabel(new ImageIcon(Var.PATH_IMAGENES + "cancelar1.png"));
         eliminarBusqueda.setOpaque(true);
         eliminarBusqueda.setBorder(new EmptyBorder(3, 3, 3, 3));
         eliminarBusqueda.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -203,15 +226,13 @@ public class VentanaPrincipal extends JFrame
 
         ruta = new JTextFieldEdit(45, "", true);
         busca = new JTextFieldEdit(15, "Buscar Archivo", false);
-        ruta.setText("");
-
+//        ruta.setText("");
 //        ruta.setEditable(false);
         dirInicio.addMouseListener(new MouseAdapter()
         {
             @Override
             public void mousePressed(MouseEvent e)
             {
-//                dirInicio.setBackground(new Color(178, 214, 255));
                 dirInicio.setBackground(new Color(245, 245, 245));
             }
 
@@ -224,7 +245,6 @@ public class VentanaPrincipal extends JFrame
             @Override
             public void mouseEntered(MouseEvent e)
             {
-//                dirInicio.setBackground(new Color(145, 190, 255));
                 dirInicio.setBackground(new Color(235, 235, 235));
             }
 
@@ -239,14 +259,10 @@ public class VentanaPrincipal extends JFrame
             {
                 if (!Var.rutaActual.isBlank())
                 {
-                    model.actualizarTabla(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
+                    modelTabla.actualizarTabla(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
                     Var.rutaActual = "";
                     ruta.setText(Var.rutaActual);
-                }else
-                {
-                    System.out.println("no fue");
                 }
-
             }
         });
 
@@ -279,7 +295,7 @@ public class VentanaPrincipal extends JFrame
             @Override
             public void mouseClicked(MouseEvent evt)
             {
-                new VentanaNuevo(VentanaPrincipal.this, "Nueva Carpeta", 'C', model).setVisible(true);
+                new VentanaNuevo(VentanaPrincipal.this, "Nueva Carpeta", 'C').setVisible(true);
             }
         });
 
@@ -312,7 +328,7 @@ public class VentanaPrincipal extends JFrame
             @Override
             public void mouseClicked(MouseEvent evt)
             {
-                new VentanaNuevo(VentanaPrincipal.this, "Nuevo Archivo", 'A', model).setVisible(true);
+                new VentanaNuevo(VentanaPrincipal.this, "Nuevo Archivo", 'A').setVisible(true);
             }
         });
 
@@ -321,32 +337,7 @@ public class VentanaPrincipal extends JFrame
             @Override
             public void keyPressed(KeyEvent e)
             {
-                if (!ruta.getText().isEmpty())
-                {
-                    if (e.getKeyChar() == '\n')
-                    {
-                        String[] arr = Ctrl.splitPath(ruta.getText().trim());
-                        if (arr.length > 0)
-                        {
-                            Nodo directorioIr = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, arr, arr[arr.length - 1]);
-                            if (directorioIr != null)
-                            {
-                                if (directorioIr.getObjecto() instanceof Archivo x)
-                                {
-                                    if (x.getTipo() == 'C')
-                                    {
-                                        model.actualizarTabla(Ctrl.cargarDirectorio(directorioIr.getAbajo()));
-                                        Var.rutaActual = x.getRuta() + x.getNombre() + "/";
-                                        ruta.setText(Var.rutaActual);
-                                    }
-                                }
-                            } else
-                            {
-                                JOptionPane.showMessageDialog(VentanaPrincipal.this, "La ruta especificada no existe.", "Error", JOptionPane.ERROR_MESSAGE);
-                            }
-                        }
-                    }
-                }
+                irBuscarRuta(e.getKeyChar());
             }
         });
 
@@ -379,21 +370,16 @@ public class VentanaPrincipal extends JFrame
             @Override
             public void mouseClicked(MouseEvent evt)
             {
-                if (!Var.rutaActual.isBlank())
-                {
-                    String[] arr = Ctrl.splitPath(Var.rutaActual);
-                    if (arr.length > 0)
-                    {
-                        Nodo directorioIr = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, arr, arr[arr.length - 1]);
-                        directorioIr = (directorioIr.getArriba() != null) ? directorioIr.getArriba().getAbajo() : Var.getMultilista().getRaiz();
-                        model.actualizarTabla(Ctrl.cargarDirectorio(directorioIr));
-                        if (directorioIr.getObjecto() instanceof Archivo x)
-                        {
-                            Var.rutaActual = x.getRuta();
-                            ruta.setText(Var.rutaActual);
-                        }
-                    }
-                }
+                irArriba();
+            }
+        });
+
+        busca.addKeyListener(new KeyAdapter()
+        {
+            @Override
+            public void keyPressed(KeyEvent e)
+            {
+                //pendiente
             }
         });
 
@@ -426,20 +412,7 @@ public class VentanaPrincipal extends JFrame
             @Override
             public void mouseClicked(MouseEvent evt)
             {
-                if (!ruta.getText().isBlank())
-                {
-                    String[] arr = Ctrl.splitPath(ruta.getText());
-                    if (arr.length > 0)
-                    {
-                        Nodo directorioIr = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, arr, arr[arr.length - 1]);
-                        directorioIr = (directorioIr.getArriba() != null) ? directorioIr.getArriba().getAbajo() : Var.getMultilista().getRaiz();
-                        model.actualizarTabla(Ctrl.cargarDirectorio(directorioIr));
-                        if (directorioIr.getObjecto() instanceof Archivo x)
-                        {
-                            ruta.setText(x.getRuta());
-                        }
-                    }
-                }
+                //pendiente
             }
         });
 
@@ -465,8 +438,8 @@ public class VentanaPrincipal extends JFrame
 //        panelWest.setBackground(Color.GREEN);
         panelWest.setLayout(new BorderLayout());
         panelFavoritos = new JPanel();
-        panelArbol = new JPanel();
-        panelArbol.setLayout(new BorderLayout());
+        panelDirectorios = new JPanel();
+        panelDirectorios.setLayout(new BorderLayout());
         panelFavoritos.setLayout(new BorderLayout());
         rootNodoFavoritos = new DefaultMutableTreeNode("Mis Favoritos");
         rootNodoDirectorios = new DefaultMutableTreeNode("Mi Equipo");
@@ -496,12 +469,12 @@ public class VentanaPrincipal extends JFrame
             }
         });
 
-        scrollArbolDirectorio = new JScrollPane();
+        scrollArbolDirectorios = new JScrollPane();
         scrollArbolFavorios = new JScrollPane();
         scrollArbolFavorios.setViewportView(treeFavoritos);
-        scrollArbolDirectorio.setViewportView(treeDirectorios);
+        scrollArbolDirectorios.setViewportView(treeDirectorios);
 
-        panelArbol.add(scrollArbolDirectorio, BorderLayout.CENTER);
+        panelDirectorios.add(scrollArbolDirectorios, BorderLayout.CENTER);
         panelFavoritos.add(scrollArbolFavorios, BorderLayout.CENTER);
         initSplitPaneHorizontal();
         panelWest.add(splitPaneHorizontal, BorderLayout.CENTER);
@@ -520,9 +493,9 @@ public class VentanaPrincipal extends JFrame
         /*
          *Configuracion de la tabla que sirve para mostrar el directorio actual
          */
-        model = new TableModelPersonalizada(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
-        model.actualizarTabla(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
-        TablaPersonalizada tabla = new TablaPersonalizada(model);
+        modelTabla = new TableModelPersonalizada(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
+        modelTabla.actualizarTabla(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
+        TablaPersonalizada tabla = new TablaPersonalizada(modelTabla);
         //Asigna colores a la tabla
 //        JTableHeader header = tabla.getTableHeader();
 
@@ -539,14 +512,12 @@ public class VentanaPrincipal extends JFrame
         JMenuItem nuevaCarpetaItem = new JMenuItem("Carpeta");
         JMenuItem nuevoArchivoItem = new JMenuItem("Archivo");
         JMenuItem moverAqui = new JMenuItem("Mover Aqui");
-//        JMenuItem propiedades = new JMenuItem("Propiedades");
+
         moverAqui.setEnabled(false);
         menu.add(nuevaCarpetaItem);
         menu.add(nuevoArchivoItem);
         popupMenu.add(menu);
         popupMenu.add(moverAqui);
-//        popupMenu.add(new JSeparator());
-//        popupMenu.add(propiedades);
 
         /*
          *Se crea y configura el popMenu para cuando esta seleccionado un elemento
@@ -555,11 +526,14 @@ public class VentanaPrincipal extends JFrame
         JPopupMenu popupMenuConSeleccion = new JPopupMenu();
         JMenuItem editar = new JMenuItem("Editar");
         JMenuItem copiar = new JMenuItem("Copiar");
+        JMenuItem pegar = new JMenuItem("Pegar");
         JMenuItem mover = new JMenuItem("Mover");
         JMenuItem elimnar = new JMenuItem("Eliminar");
         JMenuItem propiedades = new JMenuItem("Propiedades");
+        pegar.setEnabled(false);
         popupMenuConSeleccion.add(editar);
         popupMenuConSeleccion.add(copiar);
+        popupMenuConSeleccion.add(pegar);
         popupMenuConSeleccion.add(mover);
         popupMenuConSeleccion.add(elimnar);
         popupMenuConSeleccion.add(new JPopupMenu.Separator());
@@ -616,7 +590,7 @@ public class VentanaPrincipal extends JFrame
                         {
                             Var.rutaActual += directorioSeleccionado + "/";
                             ruta.setText(Var.rutaActual);
-                            model.actualizarTabla(Ctrl.cargarDirectorio(seleccionado.getAbajo()));
+                            modelTabla.actualizarTabla(Ctrl.cargarDirectorio(seleccionado.getAbajo()));
                         }
                     }
                 }
@@ -626,9 +600,7 @@ public class VentanaPrincipal extends JFrame
             public void mouseExited(MouseEvent e)
             {
                 tabla.setHoveredRow(-1);
-
                 repaint();
-
             }
         });
 
@@ -722,7 +694,7 @@ public class VentanaPrincipal extends JFrame
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                new VentanaNuevo(VentanaPrincipal.this, "Nueva Carpeta", 'C', model).setVisible(true);
+                new VentanaNuevo(VentanaPrincipal.this, "Nueva Carpeta", 'C').setVisible(true);
             }
         });
 
@@ -731,7 +703,7 @@ public class VentanaPrincipal extends JFrame
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                new VentanaNuevo(VentanaPrincipal.this, "Nuevo Archivo", 'A', model).setVisible(true);
+                new VentanaNuevo(VentanaPrincipal.this, "Nuevo Archivo", 'A').setVisible(true);
             }
         });
 
@@ -744,7 +716,7 @@ public class VentanaPrincipal extends JFrame
                 Nodo seleccionado = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, Ctrl.splitPath(ruta.getText() + archivoSeleccionado), archivoSeleccionado);
                 if (seleccionado != null && seleccionado.getObjecto() instanceof Archivo x)
                 {
-                    new VentanaPropiedades(VentanaPrincipal.this, archivoSeleccionado, x, true, model).setVisible(true);
+                    new VentanaPropiedades(VentanaPrincipal.this, archivoSeleccionado, x, true, modelTabla).setVisible(true);
                 }
             }
         });
@@ -754,25 +726,7 @@ public class VentanaPrincipal extends JFrame
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                String nom = tabla.getValueAt(tabla.getSelectedRow(), 1).toString();
-                String[] rutaa = Ctrl.splitPath(ruta.getText());
-                //Nodo seleccionado = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, Ctrl.splitPath(ruta.getText() + nom), nom);
-                Var.getMultilista().setRaiz(Var.getMultilista().elimina(Var.getMultilista().getRaiz(), 0, Ctrl.splitPath(ruta.getText() + nom), nom));
-
-                boolean guardado = ManipulacionArchivos.guardar(Var.getMultilista(), "datos.dat");
-
-                if (guardado)
-                {
-                    if (rutaa.length > 0)
-                    {
-                        Nodo directorio = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, rutaa, rutaa[rutaa.length - 1]);
-                        model.actualizarTabla(Ctrl.cargarDirectorio(directorio.getAbajo()));
-                    } else
-                    {
-                        model.actualizarTabla(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
-                    }
-                }
-
+                eliminarArchivoCarpeta(tabla.getValueAt(tabla.getSelectedRow(), 1).toString());
             }
         });
 
@@ -792,6 +746,98 @@ public class VentanaPrincipal extends JFrame
 
 //        panelCenter.add(panelNorth, BorderLayout.NORTH);
         panelCenter.add(scrollPane, BorderLayout.CENTER);
+    }
+
+    /**
+     * Buscara la ruta especificada en el JTextField llamado "ruta"
+     */
+    private void irBuscarRuta(char e)
+    {
+        if (!ruta.getText().trim().isEmpty())
+        {
+            if (e == '\n')
+            {
+                String[] arr = Ctrl.splitPath(ruta.getText().trim());
+                if (arr.length > 0)
+                {
+                    Nodo directorioIr = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, arr, arr[arr.length - 1]);
+                    if (directorioIr != null)
+                    {
+                        if (directorioIr.getObjecto() instanceof Archivo x)
+                        {
+                            if (x.getTipo() == 'C')
+                            {
+                                modelTabla.actualizarTabla(Ctrl.cargarDirectorio(directorioIr.getAbajo()));
+                                Var.rutaActual = x.getRuta() + x.getNombre() + "/";
+                                ruta.setText(Var.rutaActual);
+                            }
+                        }
+                    } else
+                    {
+                        JOptionPane.showMessageDialog(VentanaPrincipal.this, "La ruta especificada no existe.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Va al directorio padre del directorio actual
+     */
+    private void irArriba()
+    {
+        if (!Var.rutaActual.isBlank())
+        {
+            String[] arr = Ctrl.splitPath(Var.rutaActual);
+            if (arr.length > 0)
+            {
+                Nodo directorioIr = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, arr, arr[arr.length - 1]);
+                directorioIr = (directorioIr.getArriba() != null) ? directorioIr.getArriba().getAbajo() : Var.getMultilista().getRaiz();
+                if (directorioIr.getObjecto() instanceof Archivo x)
+                {
+                    modelTabla.actualizarTabla(Ctrl.cargarDirectorio(directorioIr));
+                    Var.rutaActual = x.getRuta();
+                    ruta.setText(Var.rutaActual);
+                }
+            }
+        }
+    }
+
+    /**
+     * Elimina la carpeta o archivo seleccionado si contiene archivos tambien
+     * los elimina
+     */
+    private void eliminarArchivoCarpeta(String nom)
+    {
+        String[] rutaAct = Ctrl.splitPath(Var.rutaActual);
+        int opcion = JOptionPane.showConfirmDialog(VentanaPrincipal.this, "¿Esta seguro de eliminar el archivo \"" + nom + "\" ?", "Eliminar " + (nom.contains(".") ? "Carpeta" : "Archivo"), JOptionPane.YES_NO_OPTION);
+
+        if (opcion == 0)
+        {
+            Var.getMultilista().setRaiz(Var.getMultilista().elimina(Var.getMultilista().getRaiz(), 0, Ctrl.splitPath(Var.rutaActual + nom), nom));
+            boolean guardado = ManipulacionArchivos.guardar(Var.getMultilista(), "datos.dat");
+
+            if (Var.banderaEliminarMultilista && guardado)
+            {
+                if (rutaAct.length > 0)
+                {
+                    Nodo directorio = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, rutaAct, rutaAct[rutaAct.length - 1]);
+                    modelTabla.actualizarTabla(Ctrl.cargarDirectorio(directorio.getAbajo()));
+                } else
+                {
+                    modelTabla.actualizarTabla(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
+                }
+                if (!nom.contains("."))
+                {
+                    rootNodoDirectorios.removeAllChildren();
+                    Ctrl.cargarArbolCarpetas(rootNodoDirectorios, Var.getMultilista().getRaiz());
+                    ((DefaultTreeModel) treeDirectorios.getModel()).reload(rootNodoDirectorios);
+                }
+                Var.setTablaHash(Ctrl.cargarTablaHash(Var.getMultilista()));
+                Var.getTablaHash().balanciar();
+                Var.banderaEliminarMultilista = false;
+            }
+        }
     }
 
     /*

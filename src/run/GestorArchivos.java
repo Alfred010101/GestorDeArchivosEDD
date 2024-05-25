@@ -2,6 +2,8 @@
 package run;
 
 import clases.Multilista;
+import clases.TablaHash;
+import controlador.Ctrl;
 import controlador.ManipulacionArchivos;
 import controlador.Var;
 import java.awt.EventQueue;
@@ -23,6 +25,9 @@ public class GestorArchivos
         {
             Var.setMultilista(new Multilista());
         }
+        Var.setTablaHash(Ctrl.cargarTablaHash(Var.getMultilista()));
+        Var.getTablaHash().balanciar();
+        
         EventQueue.invokeLater(() ->
         {
             try

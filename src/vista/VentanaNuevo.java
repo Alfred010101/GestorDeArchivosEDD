@@ -28,14 +28,18 @@ import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
+import javax.swing.tree.DefaultTreeModel;
 
 /**
  *
  * @author Alfred
+ * Esta clase se encarga de presentar la interfaz para crear nuevas
+ * Carpetas y Archivos, tambien procesa la validacion de los campos
+ * Nombre y tamaño
  */
+
 public class VentanaNuevo extends JDialog
 {
-
     private JPanel principal;
     private JPanel panel;
     private GridBagConstraints gbConstraints;
@@ -44,18 +48,13 @@ public class VentanaNuevo extends JDialog
     private JTextFieldEdit peso;
     private JTextFieldEdit ruta;
     private JTextFieldEdit autor;
-    private JButton crear;
     private final char tipo;
-//    private final String dir;
-    private final TableModelPersonalizada model;
-    private final String pathImagenes = "src/vista/imagenes/";
+    private JButton crear;
 
-    public VentanaNuevo(JFrame frame, String titulo, char tipo, TableModelPersonalizada model)
+    public VentanaNuevo(JFrame frame, String titulo, char tipo)
     {
         super(frame, titulo, true);
-        this.model = model;
         this.tipo = tipo;
-//        this.dir = dir;
         this.setSize(400, 280);
         this.setLocationRelativeTo(frame);
         this.setResizable(false);
@@ -64,6 +63,9 @@ public class VentanaNuevo extends JDialog
         addEscapeListener();
     }
 
+    /**
+     * Establece la apariencia de la interfaz
+     */
     private void initComponents()
     {
         principal = new JPanel();
@@ -95,7 +97,7 @@ public class VentanaNuevo extends JDialog
         gbConstraints = new GridBagConstraints();
         if (tipo == 'A')
         {
-            icono = new JLabel(new ImageIcon(pathImagenes + "nuevo-documento2.png"));
+            icono = new JLabel(new ImageIcon(Var.PATH_IMAGENES + "nuevo-documento2.png"));
             panelIcono.add(icono);//this.addComponent(icono, 0, 1, 1, 1, GridBagConstraints.CENTER);
 
             this.addComponent(new JLabel("Nombre : "), 1, 0, 1, 1, GridBagConstraints.EAST);
@@ -103,7 +105,7 @@ public class VentanaNuevo extends JDialog
             this.addComponent(peso, 2, 1, 1, 1, GridBagConstraints.WEST);
         } else
         {
-            icono = new JLabel(new ImageIcon(pathImagenes + "carpeta-vacia2.png"));
+            icono = new JLabel(new ImageIcon(Var.PATH_IMAGENES + "carpeta-vacia2.png"));
             panelIcono.add(icono);
             this.addComponent(new JLabel("Nombre : "), 1, 0, 1, 1, GridBagConstraints.EAST);
         }
@@ -119,7 +121,7 @@ public class VentanaNuevo extends JDialog
             @Override
             public void keyPressed(KeyEvent e)
             {
-                if (!nombre.getText().isEmpty())
+                if (!nombre.getText().trim().isEmpty())
                 {
                     if (tipo == 'A')
                     {
@@ -137,7 +139,7 @@ public class VentanaNuevo extends JDialog
             @Override
             public void keyPressed(KeyEvent e)
             {
-                if (!peso.getText().isEmpty())
+                if (!peso.getText().trim().isEmpty())
                 {
                     enterKeyPressed(e.getKeyChar());
                 }
@@ -152,7 +154,7 @@ public class VentanaNuevo extends JDialog
                 enterKeyPressed(e.getKeyChar());
             }
         });
-        
+
         crear.addActionListener(new ActionListener()
         {
             @Override
@@ -188,11 +190,16 @@ public class VentanaNuevo extends JDialog
         }
     }
 
+    /**
+     * Valida que los campos no esten vacios
+     * Tambien verifica que los datos sean correctos
+     * Si todo esta bien, procede a realizar las insersiones correspondientes
+     */
     private void crear()
     {
         String nombreInput = nombre.getText().trim();
         String pesoInput = peso.getText().trim();
-        
+
         if (!nombreInput.isBlank() && (tipo == 'C' || (tipo == 'A' && !pesoInput.isBlank())))
         {
             String[] nombreExtencion = Ctrl.validarNombre(nombreInput, tipo);
@@ -201,24 +208,27 @@ public class VentanaNuevo extends JDialog
                 int tamanio = (tipo == 'A') ? Ctrl.esNumeroValido(pesoInput) : 0;
                 if (tamanio > 0 || tipo == 'C')
                 {
-                    //pendiente este bloque
                     boolean estado = Ctrl.crear(nombreExtencion[0], nombreExtencion[1], autor.getText(), tipo, tamanio, Var.rutaActual);
                     boolean guardado = ManipulacionArchivos.guardar(Var.getMultilista(), "datos.dat");
-                    if (estado && guardado)
+                    if (Var.banderaInsersionMultilista && estado && guardado)
                     {
                         String[] arr = splitPath(Var.rutaActual);
                         if (arr.length > 0)
                         {
                             Nodo dirActual = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, arr, arr[arr.length - 1]);
-                            model.actualizarTabla(Ctrl.cargarDirectorio(dirActual.getAbajo()));
+                            VentanaPrincipal.modelTabla.actualizarTabla(Ctrl.cargarDirectorio(dirActual.getAbajo()));
                         } else
                         {
-                            model.actualizarTabla(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
+                            VentanaPrincipal.modelTabla.actualizarTabla(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
                         }
+                        if (tipo == 'C')
+                        {
+                            VentanaPrincipal.rootNodoDirectorios.removeAllChildren();
+                            Ctrl.cargarArbolCarpetas(VentanaPrincipal.rootNodoDirectorios, Var.getMultilista().getRaiz());
+                            ((DefaultTreeModel)VentanaPrincipal.treeDirectorios.getModel()).reload(VentanaPrincipal.rootNodoDirectorios);                          
+                        }
+                        Var.banderaInsersionMultilista = false;
                         VentanaNuevo.this.dispose();
-                    } else
-                    {
-                        JOptionPane.showMessageDialog(this, "Error al crear el archivo", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 } else
                 {
@@ -236,7 +246,7 @@ public class VentanaNuevo extends JDialog
             if (nombre.getText().trim().isBlank())
             {
                 nombre.requestFocus();
-            }else
+            } else
             {
                 peso.requestFocus();
             }

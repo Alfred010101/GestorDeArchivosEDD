@@ -42,10 +42,10 @@ public class ListaCircularDoblementeLigada implements Serializable
     {
         if (nodo == null)
         {
-            System.out.println("No se pueden insertar nodos nulos");
+//            System.out.println("No se pueden insertar nodos nulos");
             return false;
         }
-
+        
         if (raiz == null)
         {
             raiz = nodo;
@@ -53,27 +53,18 @@ public class ListaCircularDoblementeLigada implements Serializable
             raiz.setAnterior(raiz);
             return true;
         }
-
-        Matcher matcher = pattern.matcher(nodo.getEtiqueta());
-        boolean esArchivoElNodoAInsertar = matcher.matches();
-
-        Matcher matcher2 = pattern.matcher(raiz.getSiguiente().getEtiqueta());
-        boolean esArchivoElPrimerNodo = matcher2.matches();
-
-        if ((!esArchivoElNodoAInsertar && esArchivoElPrimerNodo) || (!esArchivoElNodoAInsertar && !esArchivoElPrimerNodo && nodo.getEtiqueta().compareToIgnoreCase(raiz.getSiguiente().getEtiqueta()) < 0) || (esArchivoElNodoAInsertar && esArchivoElPrimerNodo && nodo.getEtiqueta().compareToIgnoreCase(raiz.getSiguiente().getEtiqueta()) < 0))
-       {
+        
+        if(nodo.getEtiqueta().toUpperCase().compareTo(raiz.getSiguiente().getEtiqueta().toUpperCase()) < 0)
+        {
             nodo.setSiguiente(raiz.getSiguiente());
             nodo.setAnterior(raiz);
             raiz.getSiguiente().setAnterior(nodo);
             raiz.setSiguiente(nodo);
             return true;
         }
-
-        matcher2 = pattern.matcher(raiz.getEtiqueta());
-        boolean esArchivoElUltimoNodo = matcher2.matches();
-
-        if ((!esArchivoElUltimoNodo && esArchivoElNodoAInsertar) || (esArchivoElUltimoNodo && esArchivoElNodoAInsertar && nodo.getEtiqueta().compareToIgnoreCase(raiz.getEtiqueta()) > 0) || (!esArchivoElUltimoNodo && !esArchivoElNodoAInsertar && nodo.getEtiqueta().compareToIgnoreCase(raiz.getEtiqueta()) > 0))
-       {
+        
+        if(nodo.getEtiqueta().toUpperCase().compareTo(raiz.getEtiqueta().toUpperCase()) > 0)
+        {
             nodo.setSiguiente(raiz.getSiguiente());
             nodo.setAnterior(raiz);
             raiz.getSiguiente().setAnterior(nodo);
@@ -81,15 +72,11 @@ public class ListaCircularDoblementeLigada implements Serializable
             raiz = nodo;
             return true;
         }
-
-        Nodo aux = (esArchivoElNodoAInsertar) ? raiz.getAnterior() : raiz.getSiguiente();
-        matcher2 = pattern.matcher(aux.getEtiqueta());
-        boolean esArchivo = matcher2.matches();
-        boolean direccion = esArchivo; //true = getAnterior
-        while (aux != raiz)
+        
+        Nodo aux = raiz.getSiguiente();
+        while(aux != raiz)
         {
-            matcher2 = pattern.matcher(aux.getSiguiente().getEtiqueta());
-            if ((direccion && (nodo.getEtiqueta().compareToIgnoreCase(aux.getEtiqueta()) > 0 || !esArchivo)) || (!direccion && (nodo.getEtiqueta().compareToIgnoreCase(aux.getSiguiente().getEtiqueta()) < 0 || matcher2.matches())))
+            if(nodo.getEtiqueta().toUpperCase().compareTo(aux.getSiguiente().getEtiqueta().toUpperCase()) < 0)
             {
                 nodo.setSiguiente(aux.getSiguiente());
                 nodo.setAnterior(aux);
@@ -97,12 +84,76 @@ public class ListaCircularDoblementeLigada implements Serializable
                 aux.setSiguiente(nodo);
                 return true;
             }
-            aux = (esArchivoElNodoAInsertar) ? aux.getAnterior() : aux.getSiguiente();
-            matcher2 = pattern.matcher(aux.getEtiqueta());
-            esArchivo = matcher2.matches();
+            aux = aux.getSiguiente();
         }
-        return false;
+        return false;        
     }
+    
+//    public boolean insertar(Nodo nodo)
+//    {
+//        if (nodo == null)
+//        {
+//            System.out.println("No se pueden insertar nodos nulos");
+//            return false;
+//        }
+//
+//        if (raiz == null)
+//        {
+//            raiz = nodo;
+//            raiz.setSiguiente(raiz);
+//            raiz.setAnterior(raiz);
+//            return true;
+//        }
+//
+//        Matcher matcher = pattern.matcher(nodo.getEtiqueta());
+//        boolean esArchivoElNodoAInsertar = matcher.matches();
+//
+//        Matcher matcher2 = pattern.matcher(raiz.getSiguiente().getEtiqueta());
+//        boolean esArchivoElPrimerNodo = matcher2.matches();
+//
+//        if ((!esArchivoElNodoAInsertar && esArchivoElPrimerNodo) || (!esArchivoElNodoAInsertar && !esArchivoElPrimerNodo && nodo.getEtiqueta().compareToIgnoreCase(raiz.getSiguiente().getEtiqueta()) < 0) || (esArchivoElNodoAInsertar && esArchivoElPrimerNodo && nodo.getEtiqueta().compareToIgnoreCase(raiz.getSiguiente().getEtiqueta()) < 0))
+//       {
+//            nodo.setSiguiente(raiz.getSiguiente());
+//            nodo.setAnterior(raiz);
+//            raiz.getSiguiente().setAnterior(nodo);
+//            raiz.setSiguiente(nodo);
+//            return true;
+//        }
+//
+//        matcher2 = pattern.matcher(raiz.getEtiqueta());
+//        boolean esArchivoElUltimoNodo = matcher2.matches();
+//
+//        if ((!esArchivoElUltimoNodo && esArchivoElNodoAInsertar) || (esArchivoElUltimoNodo && esArchivoElNodoAInsertar && nodo.getEtiqueta().compareToIgnoreCase(raiz.getEtiqueta()) > 0) || (!esArchivoElUltimoNodo && !esArchivoElNodoAInsertar && nodo.getEtiqueta().compareToIgnoreCase(raiz.getEtiqueta()) > 0))
+//       {
+//            nodo.setSiguiente(raiz.getSiguiente());
+//            nodo.setAnterior(raiz);
+//            raiz.getSiguiente().setAnterior(nodo);
+//            raiz.setSiguiente(nodo);
+//            raiz = nodo;
+//            return true;
+//        }
+//
+//        Nodo aux = (esArchivoElNodoAInsertar) ? raiz.getAnterior() : raiz.getSiguiente();
+//        matcher2 = pattern.matcher(aux.getEtiqueta());
+//        boolean esArchivo = matcher2.matches();
+//        boolean direccion = esArchivo; //true = getAnterior
+//        while (aux != raiz)
+//        {
+//            matcher2 = pattern.matcher(aux.getSiguiente().getEtiqueta());
+//            if ((direccion && (nodo.getEtiqueta().compareToIgnoreCase(aux.getEtiqueta()) > 0 || !esArchivo)) || (!direccion && (nodo.getEtiqueta().compareToIgnoreCase(aux.getSiguiente().getEtiqueta()) < 0 || matcher2.matches())))
+//            {
+//                nodo.setSiguiente(aux.getSiguiente());
+//                nodo.setAnterior(aux);
+//                aux.getSiguiente().setAnterior(nodo);
+//                aux.setSiguiente(nodo);
+//                return true;
+//            }
+//            aux = (esArchivoElNodoAInsertar) ? aux.getAnterior() : aux.getSiguiente();
+//            matcher2 = pattern.matcher(aux.getEtiqueta());
+//            esArchivo = matcher2.matches();
+//        }
+//        return false;
+//    }
 
     public Nodo eliminar(String etiqueta)
     {
@@ -141,9 +192,8 @@ public class ListaCircularDoblementeLigada implements Serializable
         aux = aux.getSiguiente().getSiguiente();
         while (aux != raiz)
         {
-            if (aux.getEtiqueta().compareTo(etiqueta) > 0)
+            if (aux.getEtiqueta().toUpperCase().compareTo(etiqueta.toUpperCase()) > 0)
             {
-                System.out.print("No encontrado ");
                 return null;
             }
             if (aux.getEtiqueta().equals(etiqueta))
@@ -238,7 +288,7 @@ public class ListaCircularDoblementeLigada implements Serializable
             Nodo aux = raiz.getSiguiente();
             do
             {
-                if (aux.getEtiqueta().equals(etq))
+                if (aux.getEtiqueta().toUpperCase().equals(etq.toUpperCase()))
                 {
                     return aux;
                 }

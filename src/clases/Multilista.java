@@ -1,6 +1,8 @@
 package clases;
 
+import controlador.Var;
 import java.io.Serializable;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -40,9 +42,12 @@ public class Multilista implements Serializable
                     nodo.setArriba(nodoRaiz.getArriba());
                 }
                 lista.insertar(nodo);
+                Var.getTablaHash().inserta(new NodoArbol(nodo.getEtiqueta(), nodo));
+                Var.getTablaHash().balanciar(nodo.getEtiqueta());
+                Var.banderaInsersionMultilista = true;
             } else
             {
-                System.out.println("Ya existe un archivo con el mismo nombre");
+                JOptionPane.showMessageDialog(null, "Ya existe un archivo con el nombre \"" + nodo.getEtiqueta() +"\".", "Advertencia", JOptionPane.WARNING_MESSAGE); 
             }
 
             return lista.getRaiz();
@@ -55,7 +60,7 @@ public class Multilista implements Serializable
                 aux.getAbajo().setArriba(aux);
             } else
             {
-                System.out.println("El directorio no existe");
+                JOptionPane.showMessageDialog(null, "El directorio no existe.", "Advertencia", JOptionPane.WARNING_MESSAGE);     
             }
             return nodoRaiz;
         }
@@ -102,7 +107,12 @@ public class Multilista implements Serializable
             lista.setRaiz(nodoRaiz);
             if (lista.buscarNodo(etq) != null)
             {
-                lista.eliminar(etq);
+                Nodo nodoEliminado = lista.eliminar(etq);
+                if (nodoEliminado != null)
+                {
+                    nodoEliminado.setArriba(null);
+                    Var.banderaEliminarMultilista = true;
+                }
             } else
             {
                 System.out.println("No se encontró el archivo a eliminar");

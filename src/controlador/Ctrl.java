@@ -1,7 +1,10 @@
 package controlador;
 
 import clases.Archivo;
+import clases.Multilista;
 import clases.Nodo;
+import clases.NodoArbol;
+import clases.TablaHash;
 import java.awt.event.KeyEvent;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -31,7 +34,8 @@ public class Ctrl
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             Archivo archivo = new Archivo(nombre, extencion, currentDateTime.format(formatter), autor, tipo, tamaño, ruta);
             Nodo nodo = new <Archivo>Nodo(nombre + ((extencion != null) ? extencion : ""), archivo);
-            Var.getMultilista().setRaiz(Var.getMultilista().insertar(Var.getMultilista().getRaiz(), 0, splitPath(ruta + "nuevo"), nodo));
+            Nodo retorno = Var.getMultilista().insertar(Var.getMultilista().getRaiz(), 0, splitPath(ruta + "nuevo"), nodo);
+            Var.getMultilista().setRaiz(retorno);
             return true;
         } catch (Exception e)
         {
@@ -48,11 +52,11 @@ public class Ctrl
      */
     public static String[] validarNombre(String nombreArch, char tipo)
     {
-        String regexArchivo = "^[a-zA-Z][a-zA-Z0-9ñÑ_\\-() ]*\\.[a-z]+$";
+        String regexArchivo = "^[a-zA-Z][a-zA-Z0-9ñÑ_\\- ]*\\.[a-z]+$";
         Pattern patternArchivo = Pattern.compile(regexArchivo);
         Matcher matcherArchivo = patternArchivo.matcher(nombreArch);
 
-        String regexCarpeta = "^[a-zA-Z][a-zA-Z0-9ñÑ_\\-() ]*$";
+        String regexCarpeta = "^[a-zA-Z][a-zA-Z0-9ñÑ_\\- ]*$";
         Pattern patternCarpeta = Pattern.compile(regexCarpeta);
         Matcher matcherCarpeta = patternCarpeta.matcher(nombreArch);
 
@@ -174,12 +178,12 @@ public class Ctrl
         directorios = listaDirectorios.toArray(directorios);
         return directorios;
     }
-    
+
     public static void cargarArbolCarpetas(DefaultMutableTreeNode nodoRaiz, Nodo nodoPadre)
     {
         if (nodoPadre != null)
         {
-            Nodo aux = nodoPadre;
+            Nodo aux = nodoPadre.getSiguiente();
             do
             {
                 if (aux.getObjecto() instanceof Archivo x)
@@ -195,7 +199,70 @@ public class Ctrl
                     }
                 }
                 aux = aux.getSiguiente();
-            } while (aux != nodoPadre);
+            } while (aux != nodoPadre.getSiguiente());
+        }
+    }
+
+//    public static TablaHash cargarTablaHash(Multilista multilista)
+//    {
+//        TablaHash tablaAux = new TablaHash();
+//        if (multilista.getRaiz() != null)
+//        {
+//            Nodo aux = multilista.getRaiz();
+//            do
+//            {
+//                cargarTablaHash(aux, tablaAux);
+//                aux = aux.getSiguiente();
+//            } while (aux != multilista.getRaiz());
+//            
+//        }   
+//        return tablaAux;
+//    }
+//    
+//    private static void cargarTablaHash(Nodo nodo, TablaHash tablaHash)
+//    {
+//        if (nodo != null && nodo.getAbajo() != null)
+//        {
+//            Nodo aux = nodo.getAbajo();
+//            do
+//            {
+//                if (aux.getObjecto() instanceof Archivo x)
+//                {
+//                    if (x.getTipo() == 'A')
+//                    {
+//                        tablaHash.inserta(new NodoArbol(nodo.getEtiqueta(), nodo));
+//                    } else
+//                    {
+//                        cargarTablaHash(nodo, tablaHash);
+//                    }
+//                }
+//                aux = aux.getSiguiente();
+//            } while (aux != nodo.getAbajo());
+//        }
+//    }
+    public static TablaHash cargarTablaHash(Multilista multilista)
+    {
+        TablaHash tablaAux = new TablaHash();
+        if (multilista.getRaiz() != null)
+        {
+            cargarNodosEnTablaHash(multilista.getRaiz(), tablaAux);
+        }
+        return tablaAux;
+    }
+
+    private static void cargarNodosEnTablaHash(Nodo nodo, TablaHash tablaHash)
+    {
+        if (nodo != null)
+        {
+            Nodo aux = nodo;
+            do{
+                tablaHash.inserta(new NodoArbol(aux.getEtiqueta(), aux));
+                if (aux.getAbajo() != null)
+                {
+                    cargarNodosEnTablaHash(aux.getAbajo(), tablaHash);
+                }
+                aux = aux.getSiguiente();
+            }while(aux != nodo);
         }
     }
 }
