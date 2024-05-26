@@ -117,6 +117,7 @@ public class VentanaPrincipal extends JFrame
     private final int MAX_LEFT_PANEL = 200;
 
     private boolean banderaDesplieggueJTree = false;
+    public static boolean confirmacionElimina = false;
     public static JMenuItem pegar;
 
     public VentanaPrincipal()
@@ -922,17 +923,25 @@ public class VentanaPrincipal extends JFrame
      */
     private void eliminarArchivoCarpeta(String nom)
     {
-        String[] rutaAct = Ctrl.splitPath(Var.rutaActual);
-        int opcion = JOptionPane.showConfirmDialog(VentanaPrincipal.this, "¿Esta seguro de eliminar el archivo \"" + nom + "\" ?", "Eliminar " + (nom.contains(".") ? "Carpeta" : "Archivo"), JOptionPane.YES_NO_OPTION);
-
-        if (opcion == 0)
+        if (nom.contains("."))
         {
+           int opcion = JOptionPane.showConfirmDialog(VentanaPrincipal.this, "¿Esta seguro de eliminar el archivo \"" + nom + "\" ?", "Eliminar Archivo", JOptionPane.YES_NO_OPTION);
+           confirmacionElimina = (opcion == 0);
+        }else
+        {
+            new VentanaEliminar(this, nom ).setVisible(true);
+        }
+        
+        if (confirmacionElimina)
+        {
+            String[] rutaAct = Ctrl.splitPath(Var.rutaActual);
             Var.getMultilista().setRaiz(Var.getMultilista().elimina(Var.getMultilista().getRaiz(), 0, Ctrl.splitPath(Var.rutaActual + nom), nom));
             boolean guardado = ManipulacionArchivos.guardar(Var.getMultilista(), "datos.dat");
 
             if (Var.banderaEliminarMultilista && guardado)
             {
                 Ctrl.actualizarRegistrosInterfaz(rutaAct, nom, true);
+                confirmacionElimina = false;
             }
         }
     }
