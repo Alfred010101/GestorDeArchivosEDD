@@ -110,6 +110,8 @@ public class VentanaPrincipal extends JFrame
     private final int MIN_LEFT_PANEL = 0;
     private final int MAX_LEFT_PANEL = 200;
 
+    public static JMenuItem pegar;
+    
     public VentanaPrincipal()
     {
         this.setSize(1100, 600);
@@ -513,13 +515,12 @@ public class VentanaPrincipal extends JFrame
         JMenu menu = new JMenu("Nuevo");
         JMenuItem nuevaCarpetaItem = new JMenuItem("Carpeta");
         JMenuItem nuevoArchivoItem = new JMenuItem("Archivo");
-        JMenuItem moverAqui = new JMenuItem("Mover Aqui");
-
-        moverAqui.setEnabled(false);
+        pegar = new JMenuItem("Pegar Aqui");
+        pegar.setEnabled(false);
         menu.add(nuevaCarpetaItem);
         menu.add(nuevoArchivoItem);
         popupMenu.add(menu);
-        popupMenu.add(moverAqui);
+        popupMenu.add(pegar);
 
         /*
          *Se crea y configura el popMenu para cuando esta seleccionado un elemento
@@ -528,14 +529,14 @@ public class VentanaPrincipal extends JFrame
         JPopupMenu popupMenuConSeleccion = new JPopupMenu();
         JMenuItem editar = new JMenuItem("Editar");
         JMenuItem copiar = new JMenuItem("Copiar");
-        JMenuItem pegar = new JMenuItem("Pegar");
+        
         JMenuItem mover = new JMenuItem("Mover");
         JMenuItem elimnar = new JMenuItem("Eliminar");
         JMenuItem propiedades = new JMenuItem("Propiedades");
-        pegar.setEnabled(false);
+        
         popupMenuConSeleccion.add(editar);
         popupMenuConSeleccion.add(copiar);
-        popupMenuConSeleccion.add(pegar);
+//        popupMenuConSeleccion.add(pegar);
         popupMenuConSeleccion.add(mover);
         popupMenuConSeleccion.add(elimnar);
         popupMenuConSeleccion.add(new JPopupMenu.Separator());
@@ -708,7 +709,27 @@ public class VentanaPrincipal extends JFrame
                 new VentanaNuevo(VentanaPrincipal.this, "Nuevo Archivo", 'A').setVisible(true);
             }
         });
-
+        
+        pegar.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                if (((Archivo)Var.nodoCopiarBuffer.getObjecto()).getRuta().equals(Var.rutaActual))
+                {
+                    JOptionPane.showMessageDialog(VentanaPrincipal.this, "Ya existe un archivo con el nombre \"" + Var.nodoCopiarBuffer.getEtiqueta() +"\" en este directorio.", "Advertencia", JOptionPane.WARNING_MESSAGE); 
+                }else if((Var.rutaActual).startsWith(((Archivo)Var.nodoCopiarBuffer.getObjecto()).getRuta() + Var.nodoCopiarBuffer.getEtiqueta() + "/"))
+                {
+                    JOptionPane.showMessageDialog(VentanaPrincipal.this, "No se puede pegar en un subdirectorio de \"" + Var.nodoCopiarBuffer.getEtiqueta() +"\".", "Advertencia", JOptionPane.WARNING_MESSAGE); 
+                }else
+                {
+                    //si se elimina el nodo seleccionado para copiar
+                    //establecer como nulo...pendiente
+                    Ctrl.copiarNodo();
+                }
+            }
+        });
+        
         editar.addActionListener(new ActionListener()
         {
             @Override
@@ -722,7 +743,18 @@ public class VentanaPrincipal extends JFrame
                 }
             }
         });
-
+        
+        copiar.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                String archivoSeleccionado = tabla.getValueAt(tabla.getSelectedRow(), 1).toString();
+                Var.nodoCopiarBuffer = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, Ctrl.splitPath(Var.rutaActual + archivoSeleccionado), archivoSeleccionado);
+                pegar.setEnabled(true);
+            }
+        });
+        
         elimnar.addActionListener(new ActionListener()
         {
             @Override

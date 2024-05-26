@@ -18,7 +18,6 @@ public class TableModelPersonalizada extends AbstractTableModel
         "Tipo", "Nombre", "Fecha de Modificación", "Tamaño"
     };
     private final List<Archivo> files;
-    final String pathImagenes = "src/vista/imagenes/";
 
     public TableModelPersonalizada(List<Archivo> files)
     {
@@ -44,7 +43,7 @@ public class TableModelPersonalizada extends AbstractTableModel
         switch (columnIndex)
         {
             case 0:
-                return (file.getTipo() == 'A') ? new ImageIcon(pathImagenes + "nuevo-documento1.png") : new ImageIcon(pathImagenes + "carpeta1.png");
+                return (file.getTipo() == 'A') ? new ImageIcon(Var.PATH_IMAGENES + "nuevo-documento1.png") : new ImageIcon(Var.PATH_IMAGENES + "carpeta1.png");
             case 1:
                 return file.getNombre() + ((file.getTipo() == 'A') ? file.getExtension() : "");
             case 2:

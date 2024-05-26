@@ -3,6 +3,7 @@ package clases;
 import controlador.Var;
 import java.io.Serializable;
 import javax.swing.JOptionPane;
+import vista.VentanaPrincipal;
 
 /**
  *
@@ -47,7 +48,7 @@ public class Multilista implements Serializable
                 Var.banderaInsersionMultilista = true;
             } else
             {
-                JOptionPane.showMessageDialog(null, "Ya existe un archivo con el nombre \"" + nodo.getEtiqueta() +"\".", "Advertencia", JOptionPane.WARNING_MESSAGE); 
+                JOptionPane.showMessageDialog(null, "Ya existe un archivo con el nombre \"" + nodo.getEtiqueta() +"\" en este directorio.", "Advertencia", JOptionPane.WARNING_MESSAGE); 
             }
 
             return lista.getRaiz();
@@ -111,6 +112,11 @@ public class Multilista implements Serializable
                 if (nodoEliminado != null)
                 {
                     nodoEliminado.setArriba(null);
+                    if (nodoEliminado == Var.nodoCopiarBuffer)
+                    {
+                        Var.nodoCopiarBuffer = null;
+                        VentanaPrincipal.pegar.setEnabled(false);
+                    }
                     Var.banderaEliminarMultilista = true;
                 }
             } else

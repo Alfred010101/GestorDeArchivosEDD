@@ -1,6 +1,7 @@
 
 package controlador;
 import clases.Multilista;
+import clases.Nodo;
 import clases.TablaHash;
 import javax.swing.JLabel;
 
@@ -20,6 +21,11 @@ public class Var
      * Mantiene la TABLA HASH principal empleada para las busquedas
      */
     private static TablaHash tablaHash = new TablaHash();
+    
+    /**
+     * Mantiene el nodo que se va a copiar
+     */
+    public static Nodo nodoCopiarBuffer = null;
     
     //esta se va a mover
     public static JLabel contador = new JLabel("Directorio vacio        ");

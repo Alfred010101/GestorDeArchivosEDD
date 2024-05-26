@@ -45,6 +45,7 @@ public class Ctrl
             return false;
         }
     }
+
     /*
      * Actualiza un archivo en la multilista
      */
@@ -62,11 +63,12 @@ public class Ctrl
                 do
                 {
                     aux.setArriba(nodo);
-                    aux = porActualizar.getAbajo().getSiguiente();
-                }while(aux != porActualizar.getAbajo());
+                    aux = aux.getSiguiente();
+                } while (aux != porActualizar.getAbajo());
                 nodo.setAbajo(aux);
             }
             Var.getMultilista().cambiarRuta(nodo, ruta + nombre + "/");
+//            Multilista.cambiarRuta(nodo, ruta + nombre + "/");
             Nodo retorno = Var.getMultilista().insertar(Var.getMultilista().getRaiz(), 0, splitPath(ruta + "nuevo"), nodo);
             Var.getMultilista().setRaiz(retorno);
             return true;
@@ -74,6 +76,13 @@ public class Ctrl
         {
             return false;
         }
+    }
+
+    public static String obtenerFecha()
+    {
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return currentDateTime.format(formatter);
     }
 
     /**
@@ -241,12 +250,12 @@ public class Ctrl
 //        TablaHash tablaAux = new TablaHash();
 //        if (multilista.getRaiz() != null)
 //        {
-//            Nodo aux = multilista.getRaiz();
+//            Nodo auxOrigen = multilista.getRaiz();
 //            do
 //            {
-//                cargarTablaHash(aux, tablaAux);
-//                aux = aux.getSiguiente();
-//            } while (aux != multilista.getRaiz());
+//                cargarTablaHash(auxOrigen, tablaAux);
+//                auxOrigen = auxOrigen.getSiguiente();
+//            } while (auxOrigen != multilista.getRaiz());
 //            
 //        }   
 //        return tablaAux;
@@ -256,10 +265,10 @@ public class Ctrl
 //    {
 //        if (nodo != null && nodo.getAbajo() != null)
 //        {
-//            Nodo aux = nodo.getAbajo();
+//            Nodo auxOrigen = nodo.getAbajo();
 //            do
 //            {
-//                if (aux.getObjecto() instanceof Archivo x)
+//                if (auxOrigen.getObjecto() instanceof Archivo x)
 //                {
 //                    if (x.getTipo() == 'A')
 //                    {
@@ -269,8 +278,8 @@ public class Ctrl
 //                        cargarTablaHash(nodo, tablaHash);
 //                    }
 //                }
-//                aux = aux.getSiguiente();
-//            } while (aux != nodo.getAbajo());
+//                auxOrigen = auxOrigen.getSiguiente();
+//            } while (auxOrigen != nodo.getAbajo());
 //        }
 //    }
     public static TablaHash cargarTablaHash(Multilista multilista)
@@ -327,4 +336,74 @@ public class Ctrl
             Var.banderaInsersionMultilista = false;
         }
     }
+
+    public static void copiarNodo()
+    {
+        Nodo nodo = Var.nodoCopiarBuffer.clonar(true); //clono el directorio padre
+        ((Archivo) nodo.getObjecto()).setRuta(Var.rutaActual); //asigno la ruta actual
+        //inserta el directorio padre en la lista 
+        Nodo retorno = Var.getMultilista().insertar(Var.getMultilista().getRaiz(), 0, splitPath(Var.rutaActual + "copiar"), nodo);
+        Var.getMultilista().setRaiz(retorno);
+        if (Var.banderaInsersionMultilista)
+        {
+            if (Var.nodoCopiarBuffer.getAbajo() != null)               //pregunta si tiene subdirectorios
+            {
+                Var.getMultilista().setRaiz(copiarSubdirectorios(Var.nodoCopiarBuffer, Var.rutaActual + nodo.getEtiqueta() + "/"));
+            }
+
+            actualizarRegistrosInterfaz(splitPath(Var.rutaActual), nodo.getEtiqueta(), false);
+            ManipulacionArchivos.guardar(Var.getMultilista(), "datos.dat");
+        }
+
+    }
+
+    private static Nodo copiarSubdirectorios(Nodo origen, String ruta)
+    {
+        if (origen.getAbajo() != null)
+        {
+            //se asigna la  raiz
+            Nodo auxOrigen = origen.getAbajo();
+
+            do
+            {
+
+                Nodo insertar = auxOrigen.clonar(true); //se clona el nodo abajo y/o siguinete
+                ((Archivo) insertar.getObjecto()).setRuta(ruta);     //se asigna su nueva ruta
+                Nodo auxRetorno = Var.getMultilista().insertar(Var.getMultilista().getRaiz(), 0, splitPath(ruta + auxOrigen.getEtiqueta()), insertar);
+                Var.getMultilista().setRaiz(auxRetorno);
+
+                if (auxOrigen.getAbajo() != null) //pregunta si hay mas subdirectorios
+                {
+                    Var.getMultilista().setRaiz(copiarSubdirectorios(auxOrigen, ruta + auxOrigen.getEtiqueta() + "/"));
+                }
+
+                auxOrigen = auxOrigen.getSiguiente();
+
+            } while (auxOrigen != origen.getAbajo());
+
+            return Var.getMultilista().getRaiz();
+
+        }
+        return null;
+    }
+
+//    private static Nodo copiarSubdirectorios(Nodo origen, String ruta)
+//    {
+//        if (origen.getAbajo() != null)
+//        {
+//            Nodo auxOrigen = origen.getAbajo(); 
+//            Multilista lista = new Multilista();
+//            do{
+//                lista.setRaiz(lista.insertar(lista.getRaiz(), 0, splitPath(ruta), auxOrigen.clonar(true)));
+//                if (auxOrigen.getAbajo() != null)
+//                {
+//                    Nodo auxRetorno = lista.buscar(lista.getRaiz(), auxOrigen.getEtiqueta());
+//                    auxRetorno.setAbajo(copiarSubdirectorios(auxOrigen, auxOrigen.getEtiqueta() + "/"));
+//                }
+//                auxOrigen = auxOrigen.getSiguiente();
+//            }while(auxOrigen != origen.getAbajo());
+//            return lista.getRaiz();
+//        }
+//        return null;
+//    }
 }

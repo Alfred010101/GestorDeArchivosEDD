@@ -1,7 +1,10 @@
 
 package clases;
 
+import controlador.Ctrl;
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  *
@@ -122,5 +125,21 @@ public class Nodo<T> implements Serializable
     public void setAbajo(Nodo abajo)
     {
         this.abajo = abajo;
+    }
+    
+    /**
+     * 
+     * @param actualizarFecha indica si se de concervar las fecha o actualizar
+     * @return Devuelve un nodo con las misma caracteristicas del objeto que contine
+     */
+    public Nodo clonar(boolean actualizarFecha)
+    {
+        Archivo tmp = (Archivo)objecto;       
+        Archivo clon = new Archivo(tmp.getNombre(), tmp.getExtension(), tmp.getFecha(), tmp.getAutor(), tmp.getTipo(), tmp.getTamanio(), tmp.getRuta());
+         if (actualizarFecha)
+        {
+            clon.setFecha(Ctrl.obtenerFecha());
+        }
+        return new Nodo(this.etiqueta, clon);
     }
 }

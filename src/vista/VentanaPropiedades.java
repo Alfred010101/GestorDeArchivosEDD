@@ -203,7 +203,7 @@ public class VentanaPropiedades extends JDialog
                                 boolean guardado = ManipulacionArchivos.guardar(Var.getMultilista(), "datos.dat");
                                 if (Var.banderaInsersionMultilista && estado && guardado)
                                 {
-                                    Ctrl.actualizarRegistrosInterfaz(Ctrl.splitPath(Var.rutaActual), etq, true);
+                                    Ctrl.actualizarRegistrosInterfaz(Ctrl.splitPath(Var.rutaActual), etq, true);                              
                                     VentanaPropiedades.this.dispose();
                                 }
                             }
