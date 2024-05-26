@@ -176,6 +176,30 @@ public class ArbolBinario
         }
     }
 
+    // Método para encontrar todos los nodos con la etiqueta especificada
+    public List<Nodo> encontrarNodos(String prefijo)
+    {
+        List<Nodo> nodosCoincidentes = new ArrayList<>();
+        encontrarNodosRecursivo(r, prefijo, nodosCoincidentes);
+        return nodosCoincidentes;
+    }
+
+    // Método recursivo para la búsqueda en profundidad
+    private void encontrarNodosRecursivo(NodoArbol nodo, String prefijo, List<Nodo> nodosCoincidentes)
+    {
+        if (nodo != null)
+        {
+
+            if (nodo.getEtq().toUpperCase().startsWith(prefijo.toUpperCase()))
+            {
+                nodosCoincidentes.add(nodo.getObj());
+            }
+
+            encontrarNodosRecursivo(nodo.getIzq(), prefijo, nodosCoincidentes);
+            encontrarNodosRecursivo(nodo.getDer(), prefijo, nodosCoincidentes);
+        }
+    }
+
 //    // Método para almacenar los nodos del BST en una lista mediante recorrido in-order
 //    private void storeBSTNodes(NodoArbol root, ListaCircularDoblementeLigada lista)
 //    {

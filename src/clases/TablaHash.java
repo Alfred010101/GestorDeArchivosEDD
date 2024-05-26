@@ -1,6 +1,9 @@
 
 package clases;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author Alfred
@@ -33,9 +36,22 @@ public class TablaHash
             return null;
         } else
         {
-            int pos=et.trim().toUpperCase().charAt(0)-65;
+            int pos = et.trim().toUpperCase().charAt(0)-65;
             return arr[pos].busca(arr[pos].getR(), et);
         }
+    }
+    
+    public List<Nodo> buscaNodos(String prefijo)
+    {
+        if (!prefijo.isEmpty())
+        {
+            int pos = prefijo.trim().toUpperCase().charAt(0)-65;
+            if (pos >= 0 && pos <= 26)
+            {
+                return arr[pos].encontrarNodos(prefijo);
+            }
+        }
+        return new ArrayList<>();
     }
     
     public void balanciar()

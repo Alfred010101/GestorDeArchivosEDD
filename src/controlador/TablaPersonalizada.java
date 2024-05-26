@@ -145,14 +145,26 @@ class NoFocusBorderTableCellRenderer extends DefaultTableCellRenderer
 
         switch (column)
         {
+            case 0:
+                setHorizontalAlignment(SwingConstants.CENTER);
+                break;
             case 1:
                 setHorizontalAlignment(SwingConstants.LEFT);
                 break;
+            case 2:
+                
+                if(table.getColumnName(2).equals("Ruta"))
+                {
+                    setHorizontalAlignment(SwingConstants.LEFT);
+                }else
+                {
+                    setHorizontalAlignment(SwingConstants.CENTER);
+                }
+                break;
             case 3:
+                
                 setHorizontalAlignment(SwingConstants.RIGHT);
                 break;
-            default:
-                setHorizontalAlignment(SwingConstants.CENTER);
         }
 
          if (value instanceof ImageIcon imageIcon) {

@@ -9,12 +9,12 @@ package clases;
 public class NodoArbol <T>
 {
     private String etq;
-    private T nodoHilado;
+    private Nodo nodoHilado;
     
     private NodoArbol<T> izq = null;
     private NodoArbol<T> der = null;
     
-    public NodoArbol(String etq, T nodoHilado)
+    public NodoArbol(String etq, Nodo nodoHilado)
     {
         this.etq = etq;
         this.nodoHilado = nodoHilado;
@@ -39,7 +39,7 @@ public class NodoArbol <T>
     /**
      * @return the obj
      */
-    public T getObj()
+    public Nodo getObj()
     {
         return nodoHilado;
     }
@@ -47,7 +47,7 @@ public class NodoArbol <T>
     /**
      * @param nodoHilado the obj to set
      */
-    public void setObj(T nodoHilado)
+    public void setObj(Nodo nodoHilado)
     {
         this.nodoHilado = nodoHilado;
     }

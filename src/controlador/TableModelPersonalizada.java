@@ -13,15 +13,17 @@ import javax.swing.table.AbstractTableModel;
 public class TableModelPersonalizada extends AbstractTableModel
 {
 
-    private final String[] columnNames =
-    {
-        "Tipo", "Nombre", "Fecha de Modificación", "Tamaño"
-    };
+    private final String[] columnNames;
     private final List<Archivo> files;
-
-    public TableModelPersonalizada(List<Archivo> files)
+    private final boolean esBusqueda;
+    public TableModelPersonalizada(List<Archivo> files, boolean esBusqueda)
     {
         this.files = files;
+        this.esBusqueda = esBusqueda;
+        columnNames = new String[]
+        {
+            "Tipo",  "Nombre", (esBusqueda) ? "Ruta" : "Fecha de Modificación", (esBusqueda) ? "Fecha de Modificación" : "Tamaño"
+        };
     }
 
     @Override
@@ -47,9 +49,9 @@ public class TableModelPersonalizada extends AbstractTableModel
             case 1:
                 return file.getNombre() + ((file.getTipo() == 'A') ? file.getExtension() : "");
             case 2:
-                return file.getFecha();
+                return (esBusqueda) ? "C:/" + file.getRuta() : file.getFecha();
             case 3:
-                return (file.getTipo() == 'A') ? String.format("%,d KB   ", file.getTamanio()) : "";
+                return (esBusqueda) ? file.getFecha() + "       "  : (file.getTipo() == 'A') ? String.format("%,d KB   ", file.getTamanio()) : "";
             //return file.getTamanio() + " KB";
             default:
                 return null;

@@ -27,6 +27,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -111,13 +113,15 @@ public class VentanaPrincipal extends JFrame
     private final int MAX_LEFT_PANEL = 200;
 
     public static JMenuItem pegar;
-    
+
     public VentanaPrincipal()
     {
         this.setSize(1100, 600);
         this.setTitle("Gestor de Archivos - {FileMaster}");
         this.setMinimumSize(new Dimension(950, 400));
         this.setLocationRelativeTo(null);
+        ImageIcon icon = new ImageIcon(Var.PATH_IMAGENES + "image1-2.png"); 
+        this.setIconImage(icon.getImage());
         initComponents();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
@@ -383,7 +387,23 @@ public class VentanaPrincipal extends JFrame
             @Override
             public void keyPressed(KeyEvent e)
             {
-                //pendiente
+                if (e.getKeyChar() == '\n' && !busca.getText().trim().isBlank())
+                {
+                    List<Nodo> lista = Var.getTablaHash().buscaNodos(busca.getText().trim());
+                    if (!lista.isEmpty())
+                    {
+                        List<Archivo> listaResultados = new ArrayList();
+                        for (Nodo nodo : lista)
+                        {
+//                            System.out.println(((Archivo) nodo.getObjecto()).getRuta() + nodo.getEtiqueta());
+                            listaResultados.add((Archivo)nodo.getObjecto());
+                        }
+                        new VentanaResultadosBusqueda(VentanaPrincipal.this, busca.getText().trim(), listaResultados).setVisible(true);
+                    } else
+                    {
+                        JOptionPane.showMessageDialog(VentanaPrincipal.this, "No se encontro el archivo \" " + busca.getText().trim() + " \"", "Sin coinsidencias", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
             }
         });
 
@@ -429,7 +449,7 @@ public class VentanaPrincipal extends JFrame
         panelNorth.add(dirAnterior);
         panelNorth.add(new JLabel("   "));
         panelNorth.add(busca);
-        panelNorth.add(eliminarBusqueda);
+//        panelNorth.add(eliminarBusqueda);
     }
 
     /*
@@ -497,7 +517,7 @@ public class VentanaPrincipal extends JFrame
         /*
          *Configuracion de la tabla que sirve para mostrar el directorio actual
          */
-        modelTabla = new TableModelPersonalizada(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
+        modelTabla = new TableModelPersonalizada(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()), false);
         modelTabla.actualizarTabla(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
         TablaPersonalizada tabla = new TablaPersonalizada(modelTabla);
         //Asigna colores a la tabla
@@ -529,11 +549,11 @@ public class VentanaPrincipal extends JFrame
         JPopupMenu popupMenuConSeleccion = new JPopupMenu();
         JMenuItem editar = new JMenuItem("Editar");
         JMenuItem copiar = new JMenuItem("Copiar");
-        
+
         JMenuItem mover = new JMenuItem("Mover");
         JMenuItem elimnar = new JMenuItem("Eliminar");
         JMenuItem propiedades = new JMenuItem("Propiedades");
-        
+
         popupMenuConSeleccion.add(editar);
         popupMenuConSeleccion.add(copiar);
 //        popupMenuConSeleccion.add(pegar);
@@ -709,19 +729,19 @@ public class VentanaPrincipal extends JFrame
                 new VentanaNuevo(VentanaPrincipal.this, "Nuevo Archivo", 'A').setVisible(true);
             }
         });
-        
+
         pegar.addActionListener(new ActionListener()
         {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                if (((Archivo)Var.nodoCopiarBuffer.getObjecto()).getRuta().equals(Var.rutaActual))
+                if (((Archivo) Var.nodoCopiarBuffer.getObjecto()).getRuta().equals(Var.rutaActual))
                 {
-                    JOptionPane.showMessageDialog(VentanaPrincipal.this, "Ya existe un archivo con el nombre \"" + Var.nodoCopiarBuffer.getEtiqueta() +"\" en este directorio.", "Advertencia", JOptionPane.WARNING_MESSAGE); 
-                }else if((Var.rutaActual).startsWith(((Archivo)Var.nodoCopiarBuffer.getObjecto()).getRuta() + Var.nodoCopiarBuffer.getEtiqueta() + "/"))
+                    JOptionPane.showMessageDialog(VentanaPrincipal.this, "Ya existe un archivo con el nombre \"" + Var.nodoCopiarBuffer.getEtiqueta() + "\" en este directorio.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                } else if ((Var.rutaActual).startsWith(((Archivo) Var.nodoCopiarBuffer.getObjecto()).getRuta() + Var.nodoCopiarBuffer.getEtiqueta() + "/"))
                 {
-                    JOptionPane.showMessageDialog(VentanaPrincipal.this, "No se puede pegar en un subdirectorio de \"" + Var.nodoCopiarBuffer.getEtiqueta() +"\".", "Advertencia", JOptionPane.WARNING_MESSAGE); 
-                }else
+                    JOptionPane.showMessageDialog(VentanaPrincipal.this, "No se puede pegar en un subdirectorio de \"" + Var.nodoCopiarBuffer.getEtiqueta() + "\".", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                } else
                 {
                     //si se elimina el nodo seleccionado para copiar
                     //establecer como nulo...pendiente
@@ -729,7 +749,7 @@ public class VentanaPrincipal extends JFrame
                 }
             }
         });
-        
+
         editar.addActionListener(new ActionListener()
         {
             @Override
@@ -743,7 +763,7 @@ public class VentanaPrincipal extends JFrame
                 }
             }
         });
-        
+
         copiar.addActionListener(new ActionListener()
         {
             @Override
@@ -754,7 +774,7 @@ public class VentanaPrincipal extends JFrame
                 pegar.setEnabled(true);
             }
         });
-        
+
         elimnar.addActionListener(new ActionListener()
         {
             @Override
