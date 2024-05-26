@@ -10,6 +10,7 @@ import java.awt.event.KeyEvent;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,6 +18,7 @@ import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 import vista.VentanaPrincipal;
 
 /**
@@ -385,6 +387,17 @@ public class Ctrl
 
         }
         return null;
+    }
+
+    public static String obtenerRutaSinRaiz(TreePath path)
+    {
+        String ruta = "";
+        for (Object object : path.getPath())
+        {
+            ruta += object.toString() + "/";
+        }
+        int pos = ruta.indexOf("/");
+        return ruta.substring(pos + 1);
     }
 
 //    private static Nodo copiarSubdirectorios(Nodo origen, String ruta)

@@ -28,6 +28,7 @@ import java.awt.event.MouseMotionAdapter;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -44,6 +45,8 @@ import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.JViewport;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -70,7 +73,7 @@ public class VentanaPrincipal extends JFrame
     private JLabel dirInicio;
     private JLabel nuevaCarpeta;
     private JLabel nuevoArchivo;
-    private JTextFieldEdit ruta;
+    public static JTextFieldEdit ruta;
     private JTextFieldEdit busca;
     private JLabel dirAnterior;
     private JLabel eliminarBusqueda;
@@ -104,6 +107,7 @@ public class VentanaPrincipal extends JFrame
      * punto del sistema
      */
     public static TableModelPersonalizada modelTabla;
+    public static TablaPersonalizada tabla;
 
     /**
      * Establecen valores parea que el split tenga limite en cuanto al espacio a
@@ -112,6 +116,7 @@ public class VentanaPrincipal extends JFrame
     private final int MIN_LEFT_PANEL = 0;
     private final int MAX_LEFT_PANEL = 200;
 
+    private boolean banderaDesplieggueJTree = false;
     public static JMenuItem pegar;
 
     public VentanaPrincipal()
@@ -120,7 +125,7 @@ public class VentanaPrincipal extends JFrame
         this.setTitle("Gestor de Archivos - {FileMaster}");
         this.setMinimumSize(new Dimension(950, 400));
         this.setLocationRelativeTo(null);
-        ImageIcon icon = new ImageIcon(Var.PATH_IMAGENES + "image1-2.png"); 
+        ImageIcon icon = new ImageIcon(Var.PATH_IMAGENES + "image1-2.png");
         this.setIconImage(icon.getImage());
         initComponents();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -395,8 +400,7 @@ public class VentanaPrincipal extends JFrame
                         List<Archivo> listaResultados = new ArrayList();
                         for (Nodo nodo : lista)
                         {
-//                            System.out.println(((Archivo) nodo.getObjecto()).getRuta() + nodo.getEtiqueta());
-                            listaResultados.add((Archivo)nodo.getObjecto());
+                            listaResultados.add((Archivo) nodo.getObjecto());
                         }
                         new VentanaResultadosBusqueda(VentanaPrincipal.this, busca.getText().trim(), listaResultados).setVisible(true);
                     } else
@@ -404,6 +408,16 @@ public class VentanaPrincipal extends JFrame
                         JOptionPane.showMessageDialog(VentanaPrincipal.this, "No se encontro el archivo \" " + busca.getText().trim() + " \"", "Sin coinsidencias", JOptionPane.ERROR_MESSAGE);
                     }
                 }
+            }
+        });
+
+        busca.addFocusListener(new FocusAdapter()
+        {
+            @Override
+            public void focusLost(FocusEvent e)
+            {
+                busca.setText("Buscar Archivo");
+                repaint();
             }
         });
 
@@ -458,8 +472,6 @@ public class VentanaPrincipal extends JFrame
     private void initPanelWest()
     {
         panelWest = new JPanel();
-//        panelWest.setLayout(new BoxLayout(panelWest, BoxLayout.X_AXIS));
-//        panelWest.setBackground(Color.GREEN);
         panelWest.setLayout(new BorderLayout());
         panelFavoritos = new JPanel();
         panelDirectorios = new JPanel();
@@ -470,10 +482,6 @@ public class VentanaPrincipal extends JFrame
         Ctrl.cargarArbolCarpetas(rootNodoDirectorios, Var.getMultilista().getRaiz());
         treeFavoritos = new JTree(rootNodoFavoritos);
         treeDirectorios = new JTree(rootNodoDirectorios);
-//        DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) treeDirectorios.getCellRenderer();
-//        renderer.setOpenIcon(new ImageIcon("src/vista/imagenes/carpeta1.png")); 
-//        renderer.setClosedIcon(new ImageIcon("src/vista/imagenes/carpeta1.png")); 
-//        renderer.setLeafIcon(new ImageIcon("src/vista/imagenes/carpeta1.png")); 
 
         TreeCellRendererEdit render1 = new TreeCellRendererEdit(true);
         treeFavoritos.setCellRenderer(render1);
@@ -489,6 +497,57 @@ public class VentanaPrincipal extends JFrame
                 if (path != null)
                 {
                     treeDirectorios.setSelectionPath(path);
+                }
+            }
+        });
+
+        treeDirectorios.addMouseListener(new MouseAdapter()
+        {
+            public void mouseClicked(MouseEvent e)
+            {
+                // Obtener la ubicación del clic
+                int x = e.getX();
+                int y = e.getY();
+
+                // Obtener la ruta del nodo en la ubicación del clic
+                TreePath path = treeDirectorios.getPathForLocation(x, y);
+
+                if (path != null)
+                {
+                    if (e.getClickCount() == 2)
+                    {
+
+                        String rutaJTree = Ctrl.obtenerRutaSinRaiz(path);
+                        if (rutaJTree.compareTo(Var.rutaActual) != 0)
+                        {
+                            Var.rutaActual = rutaJTree;
+                            if (Var.rutaActual.isEmpty())
+                            {
+                                modelTabla.actualizarTabla(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
+                            } else
+                            {
+                                String[] arr = Ctrl.splitPath(Var.rutaActual);
+                                Nodo directorioIr = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, arr, arr[arr.length - 1]);
+                                modelTabla.actualizarTabla(Ctrl.cargarDirectorio(directorioIr.getAbajo()));
+                            }
+                            ruta.setText(Var.rutaActual);
+                            banderaDesplieggueJTree = true;
+                        }
+                    } else if (e.getClickCount() == 1)
+                    {
+                        if (treeDirectorios.isExpanded(path))
+                        {
+                            treeDirectorios.collapsePath(path);
+                        } else
+                        {
+                            treeDirectorios.expandPath(path);
+                        }
+                    }
+                    if (banderaDesplieggueJTree)
+                    {
+                        treeDirectorios.expandPath(path);
+                        banderaDesplieggueJTree = false;
+                    }
                 }
             }
         });
@@ -519,7 +578,7 @@ public class VentanaPrincipal extends JFrame
          */
         modelTabla = new TableModelPersonalizada(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()), false);
         modelTabla.actualizarTabla(Ctrl.cargarDirectorio(Var.getMultilista().getRaiz()));
-        TablaPersonalizada tabla = new TablaPersonalizada(modelTabla);
+        tabla = new TablaPersonalizada(modelTabla);
         //Asigna colores a la tabla
 //        JTableHeader header = tabla.getTableHeader();
 
