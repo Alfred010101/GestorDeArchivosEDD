@@ -35,9 +35,7 @@ public class Ctrl
     {
         try
         {
-            LocalDateTime currentDateTime = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            Archivo archivo = new Archivo(nombre, extencion, currentDateTime.format(formatter), autor, tipo, tamaño, ruta);
+            Archivo archivo = new Archivo(nombre, extencion, obtenerFecha(), autor, tipo, tamaño, ruta);
             Nodo nodo = new <Archivo>Nodo(nombre + ((extencion != null) ? extencion : ""), archivo);
             Nodo retorno = Var.getMultilista().insertar(Var.getMultilista().getRaiz(), 0, splitPath(ruta + "nuevo"), nodo);
             Var.getMultilista().setRaiz(retorno);
@@ -55,9 +53,7 @@ public class Ctrl
     {
         try
         {
-            LocalDateTime currentDateTime = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            Archivo archivo = new Archivo(nombre, extencion, currentDateTime.format(formatter), autor, tipo, tamaño, ruta);
+            Archivo archivo = new Archivo(nombre, extencion, obtenerFecha(), autor, tipo, tamaño, ruta);
             Nodo nodo = new <Archivo>Nodo(nombre + ((extencion != null) ? extencion : ""), archivo);
             if (porActualizar != null && porActualizar.getAbajo() != null)
             {
@@ -357,6 +353,26 @@ public class Ctrl
             ManipulacionArchivos.guardar(Var.getMultilista(), "datos.dat");
         }
 
+    }
+
+    public static void moverNodo()
+    {
+        String nom = Var.nodoMoverBuffer.getEtiqueta();
+        String[] rutaAct = splitPath(((Archivo) Var.nodoMoverBuffer.getObjecto()).getRuta() + nom);
+        Var.getMultilista().setRaiz(Var.getMultilista().elimina(Var.getMultilista().getRaiz(), 0, rutaAct, nom));
+        if (Var.banderaEliminarMultilista)
+        {
+            ((Archivo)Var.nodoMoverBuffer.getObjecto()).setFecha(obtenerFecha());
+            ((Archivo)Var.nodoMoverBuffer.getObjecto()).setRuta(Var.rutaActual);
+            Var.getMultilista().setRaiz(Var.getMultilista().insertar(Var.getMultilista().getRaiz(), 0, splitPath(Var.rutaActual + "mover"), Var.nodoMoverBuffer));
+            if (Var.banderaInsersionMultilista)
+            {
+                Var.getMultilista().cambiarRuta(Var.nodoMoverBuffer, Var.rutaActual + Var.nodoMoverBuffer.getEtiqueta() + "/");
+                actualizarRegistrosInterfaz(splitPath(Var.rutaActual), Var.nodoMoverBuffer.getEtiqueta(), true);
+                ManipulacionArchivos.guardar(Var.getMultilista(), "datos.dat");
+                Var.nodoMoverBuffer = null;
+            }
+        }
     }
 
     private static Nodo copiarSubdirectorios(Nodo origen, String ruta)

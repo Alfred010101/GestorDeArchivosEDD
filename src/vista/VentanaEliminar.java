@@ -192,6 +192,16 @@ public class VentanaEliminar extends JDialog
             @Override
             public void actionPerformed(ActionEvent e)
             {
+                if (Var.nodoMoverBuffer != null && ((Archivo)Var.nodoMoverBuffer.getObjecto()).getRuta().startsWith(Var.rutaActual + nombreEliminar + "/"))
+                {
+                    Var.nodoMoverBuffer = null;
+                    VentanaPrincipal.moverAqui.setEnabled(false);
+                }
+                if (Var.nodoCopiarBuffer != null && ((Archivo)Var.nodoCopiarBuffer.getObjecto()).getRuta().startsWith(Var.rutaActual + nombreEliminar + "/"))
+                {
+                    Var.nodoCopiarBuffer = null;
+                    VentanaPrincipal.pegar.setEnabled(false);
+                }
                 VentanaPrincipal.confirmacionElimina = true;
                 dispose();
             }

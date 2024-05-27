@@ -116,9 +116,21 @@ public class VentanaPrincipal extends JFrame
     private final int MIN_LEFT_PANEL = 0;
     private final int MAX_LEFT_PANEL = 200;
 
+    /**
+     * para controlar la estetica(desplieguw) del Jtree
+     */
     private boolean banderaDesplieggueJTree = false;
+    
+    /**
+     * Saber si el archivo debe ser eliminado o no 
+     */
     public static boolean confirmacionElimina = false;
+    
+    /**
+     * Para habilitar o deshabilitar los items 
+     */
     public static JMenuItem pegar;
+    public static JMenuItem moverAqui;
 
     public VentanaPrincipal()
     {
@@ -597,10 +609,13 @@ public class VentanaPrincipal extends JFrame
         JMenuItem nuevoArchivoItem = new JMenuItem("Archivo");
         pegar = new JMenuItem("Pegar Aqui");
         pegar.setEnabled(false);
+        moverAqui = new JMenuItem("Mover Aqui");
+        moverAqui.setEnabled(false);
         menu.add(nuevaCarpetaItem);
         menu.add(nuevoArchivoItem);
         popupMenu.add(menu);
         popupMenu.add(pegar);
+        popupMenu.add(moverAqui);
 
         /*
          *Se crea y configura el popMenu para cuando esta seleccionado un elemento
@@ -809,6 +824,31 @@ public class VentanaPrincipal extends JFrame
                 }
             }
         });
+        
+        moverAqui.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                if (((Archivo) Var.nodoMoverBuffer.getObjecto()).getRuta().equals(Var.rutaActual))
+                {
+                    JOptionPane.showMessageDialog(VentanaPrincipal.this, "No se puede mover \"" + Var.nodoMoverBuffer.getEtiqueta() + "\" a al mismo directorio.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                } else if ((Var.rutaActual).startsWith(((Archivo) Var.nodoMoverBuffer.getObjecto()).getRuta() + Var.nodoMoverBuffer.getEtiqueta() + "/"))
+                {
+                    JOptionPane.showMessageDialog(VentanaPrincipal.this, "No se puede mover a un subdirectorio de \"" + Var.nodoMoverBuffer.getEtiqueta() + "\".", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                } else
+                {
+                    Nodo nodo = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, Ctrl.splitPath(Var.rutaActual + Var.nodoMoverBuffer.getEtiqueta()), Var.nodoMoverBuffer.getEtiqueta());
+                    if (nodo == null)
+                    {
+                        Ctrl.moverNodo();
+                    }else
+                    {
+                        JOptionPane.showMessageDialog(VentanaPrincipal.this, "Ya existe un archivo con el nombre \"" + Var.nodoMoverBuffer.getEtiqueta() +"\" en este directorio.", "Advertencia", JOptionPane.WARNING_MESSAGE); 
+                    }                    
+                }
+            }
+        });
 
         editar.addActionListener(new ActionListener()
         {
@@ -832,6 +872,17 @@ public class VentanaPrincipal extends JFrame
                 String archivoSeleccionado = tabla.getValueAt(tabla.getSelectedRow(), 1).toString();
                 Var.nodoCopiarBuffer = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, Ctrl.splitPath(Var.rutaActual + archivoSeleccionado), archivoSeleccionado);
                 pegar.setEnabled(true);
+            }
+        });
+        
+        mover.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                String archivoSeleccionado = tabla.getValueAt(tabla.getSelectedRow(), 1).toString();
+                Var.nodoMoverBuffer = Var.getMultilista().buscar(Var.getMultilista().getRaiz(), 0, Ctrl.splitPath(Var.rutaActual + archivoSeleccionado), archivoSeleccionado);
+                moverAqui.setEnabled(true);
             }
         });
 

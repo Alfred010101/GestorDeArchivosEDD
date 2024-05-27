@@ -112,9 +112,13 @@ public class Multilista implements Serializable
                 if (nodoEliminado != null)
                 {
                     nodoEliminado.setArriba(null);
+                    if (nodoEliminado == Var.nodoMoverBuffer)
+                    {
+                        VentanaPrincipal.moverAqui.setEnabled(false);
+                    }
                     if (nodoEliminado == Var.nodoCopiarBuffer)
                     {
-                        Var.nodoCopiarBuffer = null;
+                        //Var.nodoCopiarBuffer = null;
                         VentanaPrincipal.pegar.setEnabled(false);
                     }
                     Var.banderaEliminarMultilista = true;

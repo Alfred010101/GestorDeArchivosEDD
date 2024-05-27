@@ -27,6 +27,11 @@ public class Var
      */
     public static Nodo nodoCopiarBuffer = null;
     
+    /**
+     * Mantiene el nodo que se va a mover
+     */
+    public static Nodo nodoMoverBuffer = null;
+    
     //esta se va a mover
     public static JLabel contador = new JLabel("Directorio vacio        ");
     
